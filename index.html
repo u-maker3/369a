@@ -74,13 +74,45 @@ const flowScenes={
 11:{title:'感性を信じる季節',move:'心に響く気づきを確かめる',tip:'直感を一つメモする'},
 22:{title:'理想を育てる季節',move:'願いを現実的な計画に変える',tip:'目標を小さな手順に分ける'}
 };
-function fusionTitle(num,star,palace){const a=starScenes[star],b=stageScenes[palace],c=flowScenes[num];return `${a.subject}を大切に、${c.title}`;}
-function fusionMessage(num,star,palace,monthly=false){
- const a=starScenes[star],b=stageScenes[palace],c=flowScenes[num];
- if(monthly)return `今月は${b.field}に目を向けながら、${c.move}ことを意識したい時期。${a.lens}、${b.verb}ことが今の自分に合う進み方を見つける助けになります。${a.care}、できることから少しずつ。`;
- return `この一年は、${b.field}を見つめながら${c.move}ことがテーマ。${a.lens}、${b.verb}ことを大切にしてみましょう。${a.care}、自分の歩幅で進むことが次の季節につながります。`;
+// みろく流：年間は本命星、月別は回座宮を主役にする。数秘は行動の方向づけ。
+const palaceNarratives={
+ C:{head:'自分の軸を整える',intro:'予定や役割を一度見渡し、今の自分が本当に大切にしたいことを確かめる時間です。',act:'今月の優先事項を一つだけ書き出す'},
+ NW:{head:'役割との向き合い方を選ぶ',intro:'頼まれごとや目標に向き合う場面では、何を引き受けるかを自分で決めることも大切です。',act:'抱えている役割を一つ見直す'},
+ W:{head:'喜びを分かち合う',intro:'気負わない会話や好きなことに触れる時間が、心をやわらかくしてくれそうです。',act:'楽しかった出来事を誰かに伝える'},
+ NE:{head:'変わり目を丁寧に迎える',intro:'続けてきた習慣を見直すことで、今の暮らしに合う新しい形が見えてきます。',act:'残したい習慣と変えたい習慣を一つずつ選ぶ'},
+ S:{head:'気づきを言葉にする',intro:'学んだことや感じたことを整理すると、自分の考えが以前よりはっきりしてきそうです。',act:'最近の発見を短い言葉で書き留める'},
+ N:{head:'静かな準備を大切に',intro:'すぐに結果を求めず、休息や下準備に時間を使うことにも意味がある季節です。',act:'予定に余白を一つつくる'},
+ SW:{head:'日々の土台を育てる',intro:'大きな変化より、暮らしの小さな工夫を続けることで安心できる土台が育ちます。',act:'毎日続けられる工夫を一つ決める'},
+ E:{head:'小さな挑戦を始める',intro:'気になっていたことに手を伸ばすと、思いがけない発見につながるかもしれません。',act:'気になることを一つ試してみる'},
+ SE:{head:'ご縁をゆっくり育てる',intro:'相手の話に耳を傾け、言葉を交わすことで、これからも大切にしたい関係が見えてきます。',act:'大切な人に近況を伝える'}
+};
+const numBridges={
+ 1:{head:'自分で選ぶ',line:'誰かの正解より、自分が納得できる小さな一歩を選んでみましょう。'},
+ 2:{head:'歩調を確かめる',line:'相手の気持ちも自分の気持ちも、どちらも置き去りにしないことが大切です。'},
+ 3:{head:'楽しみを広げる',line:'心が弾むことを一つ取り入れると、毎日の景色が少し変わりそうです。'},
+ 4:{head:'続けられる形にする',line:'無理のない手順を決めて、少しずつ積み重ねていきましょう。'},
+ 5:{head:'新しい方法を試す',line:'いつもと違う選択を一つ試し、自分に合うか確かめてみて。'},
+ 6:{head:'身近なものをいたわる',line:'大切な人を思うのと同じように、自分自身にもやさしい時間を。'},
+ 7:{head:'じっくり確かめる',line:'答えを急がず、心に残ったことを静かに掘り下げてみましょう。'},
+ 8:{head:'手応えを形にする',line:'これまで続けたことを振り返り、次につながる成果を一つ確かめて。'},
+ 9:{head:'一区切りをつける',line:'今の自分に合わなくなったものを、感謝とともに整理してみましょう。'},
+ 11:{head:'小さな直感を拾う',line:'ふと気になったことをメモして、心が向かう先を確かめてみて。'},
+ 22:{head:'構想を一歩進める',line:'大きな願いも、今日できる小さな段取りに変えてみましょう。'}
+};
+function fusionTitle(num,star,palace,monthly=false){
+ if(monthly)return `${palaceNarratives[palace].head}、${numBridges[num].head}とき`;
+ return `${starScenes[star].subject}を育て、${flowScenes[num].title}`;
 }
-function fusionAction(num,star,palace){const a=starScenes[star],b=stageScenes[palace],c=flowScenes[num];const options=[a.do,b.hint,c.tip];return options[(num+star+palaces.indexOf(palace))%3]+'。';}
+function fusionMessage(num,star,palace,monthly=false){
+ const a=starScenes[star],b=palaceNarratives[palace],c=numBridges[num];
+ if(monthly)return `${b.intro}${c.line}`;
+ return `この一年は「${flowScenes[num].title}」が一つのテーマ。${a.lens}、${stageScenes[palace].verb}ことを心がけてみましょう。${a.care}、自分の歩幅で進んで大丈夫です。`;
+}
+function fusionAction(num,star,palace){
+ const p=palaceNarratives[palace];
+ // 月の舞台に固有の行動を優先し、数秘による本文との差を明確にする
+ return p.act+'。';
+}
 const sumDigits=s=>[...String(s)].reduce((a,c)=>a+(Number(c)||0),0);
 function reduce(n){while(n>9&&n!==11&&n!==22)n=sumDigits(n);return n}
 function root(n){while(n>9)n=sumDigits(n);return n}
@@ -131,7 +163,7 @@ function render(d){
   const y=monthStarts[i],p=palaceWords[m.p];
   ctx.strokeStyle='#ded8d2';ctx.lineWidth=2;ctx.strokeRect(60,y,1120,250);
   fill(`${m.m}月`,84,y+51,36,'#775e4d',true);
-  fitHeading(fusionTitle(m.n,d.star,m.p),214,y+51,930,29);
+  fitHeading(fusionTitle(m.n,d.star,m.p,true),214,y+51,930,29);
   let msg=fusionMessage(m.n,d.star,m.p,true);
   if(m.n!==m.endN){const bd=Number(d.date.slice(8));msg+=` ${bd}日からは次の流れも重なります。`;}
   fitWrap(msg,86,y+97,1060,23,32,4);
