@@ -99,54 +99,56 @@ const numBridges={
  11:{head:'小さな直感を拾う',line:'ふと気になったことをメモして、心が向かう先を確かめてみて。'},
  22:{head:'構想を一歩進める',line:'大きな願いも、今日できる小さな段取りに変えてみましょう。'}
 };
+// 月盤の回座宮を主役にした、宮ごとに独立した見出し・本文・行動。
+// 数秘は同じ文章を月送りするのではなく、各宮の助言の焦点を調整する。
+const palaceReadings={
+ C:{title:'今の自分に、ちょうどいい優先順位を',intro:'あれもこれもと頑張る前に、今の暮らし全体を見渡してみましょう。',detail:'自分の軸を確かめることで、迷っていたことにも落ち着いて向き合えます。',actions:['今日いちばん大切にしたいことを一つ書く','予定の中から、今はしなくてよいことを一つ外す','これから続けたい習慣を一つ決める']},
+ NW:{title:'引き受けることを、自分で選ぶ',intro:'役割や目標に向き合う場面があっても、全部を一人で背負う必要はありません。',detail:'自分の意思で引き受けることを選べば、責任も前向きな力に変わっていきます。',actions:['頼れる相手に一つ相談する','今月の役割を一つ見直す','大切な目標を一つに絞る']},
+ W:{title:'喜びを分かち合い、心を満たす',intro:'何気ない会話や好きなことに触れる時間を、いつもより大切にしてみて。',detail:'気持ちを分かち合うことが、次に進むための元気を育ててくれそうです。',actions:['うれしかった出来事を誰かに伝える','気になっていた楽しみを予定に入れる','身近な人に感謝を言葉で届ける']},
+ NE:{title:'変わり目に、残すものを選ぶ',intro:'今まで当たり前だったやり方を見直すと、これからの自分に合う形が見えてきます。',detail:'変えることと守ることを分けて考えると、気持ちも整っていきそうです。',actions:['続けたい習慣と変えたい習慣を一つずつ書く','身の回りの一か所を整える','次の季節に持っていきたいものを決める']},
+ S:{title:'気づきを言葉にして、次へつなぐ',intro:'学んだことや心に残った出来事を、少し立ち止まって振り返ってみましょう。',detail:'見えてきた思いを言葉にすると、進みたい方向がはっきりしてきます。',actions:['最近の発見を三行で書く','伝えたかった気持ちを一つ言葉にする','学びたいことを一つ調べる']},
+ N:{title:'静かな準備が、これからを支える',intro:'急いで答えを出さなくても大丈夫。今は心と体の声を聞く時間をつくってみましょう。',detail:'見えないところで整えたことが、次の一歩を支える土台になります。',actions:['何もしない時間を予定に入れる','気になっていた準備を一つ進める','自分の本音をノートに書く']},
+ SW:{title:'毎日の小さな工夫を育てる',intro:'派手な変化を求めるより、日々の暮らしを丁寧に整えることに目を向けてみて。',detail:'小さな積み重ねが安心感につながり、これからの自信を育てます。',actions:['朝か夜の習慣を一つ整える','身近な人をさりげなく手伝う','続けられる小さな目標を決める']},
+ E:{title:'思いついたことを、小さく試す',intro:'気になっていたことに手を伸ばすと、新しい発見がありそうな季節です。',detail:'完璧な準備より、無理のない一歩を重ねることを大切にしましょう。',actions:['気になることを一つ体験する','やりたいことの最初の手順を決める','新しい方法を一度だけ試す']},
+ SE:{title:'言葉を交わし、ご縁を育てる',intro:'人とのつながりの中に、今の自分に必要なヒントが見つかるかもしれません。',detail:'相手の話を聞きながら、自分の気持ちも丁寧に伝えてみましょう。',actions:['大切な人に近況を伝える','気になる人に短い連絡をする','相手の話を最後まで聞く時間をつくる']}
+};
+const numModifiers={
+ 1:{angle:'新しい選択',sentence:'その中から、今の自分が選びたいことを一つ決めてみて。'},
+ 2:{angle:'相手との歩調',sentence:'相手に合わせすぎず、自分の気持ちも大切にしましょう。'},
+ 3:{angle:'楽しむ気持ち',sentence:'心が少し弾む工夫を加えると、続けやすくなりそうです。'},
+ 4:{angle:'無理のない習慣',sentence:'一度に変えず、続けられる手順を整えるのがおすすめです。'},
+ 5:{angle:'新しいやり方',sentence:'いつもと違う方法も、気負わず試してみましょう。'},
+ 6:{angle:'大切な人と自分',sentence:'周りを思うのと同じくらい、自分もいたわってくださいね。'},
+ 7:{angle:'じっくり確かめる時間',sentence:'答えを急がず、納得できるまで考える時間も大切です。'},
+ 8:{angle:'これまでの手応え',sentence:'続けてきたことの成果を一つ確かめてみましょう。'},
+ 9:{angle:'一区切り',sentence:'今の自分に必要ないものは、感謝とともに整理して。'},
+ 11:{angle:'心の小さなサイン',sentence:'ふと感じたことを見過ごさず、メモに残してみて。'},
+ 22:{angle:'思いを形にする段取り',sentence:'大きな願いも、今日できる小さな行動に分けてみましょう。'}
+};
 function fusionTitle(num,star,palace,monthly=false){
- if(monthly)return `${palaceNarratives[palace].head}、${numBridges[num].head}とき`;
+ if(monthly)return palaceReadings[palace].title;
  return `${starScenes[star].subject}を育て、${flowScenes[num].title}`;
 }
 function fusionMessage(num,star,palace,monthly=false){
- const a=starScenes[star],b=palaceNarratives[palace],c=numBridges[num];
- if(monthly)return `${b.intro}${c.line}`;
- return `この一年は「${flowScenes[num].title}」が一つのテーマ。${a.lens}、${stageScenes[palace].verb}ことを心がけてみましょう。${a.care}、自分の歩幅で進んで大丈夫です。`;
+ if(monthly){const p=palaceReadings[palace],n=numModifiers[num];return `${p.intro}${p.detail}${n.sentence}`;}
+ const a=starScenes[star];return `この一年は「${flowScenes[num].title}」が一つのテーマ。${a.lens}、${stageScenes[palace].verb}ことを心がけてみましょう。${a.care}、自分の歩幅で進んで大丈夫です。`;
 }
 function fusionAction(num,star,palace){
- const p=palaceNarratives[palace];
- // 月の舞台に固有の行動を優先し、数秘による本文との差を明確にする
- return p.act+'。';
+ const p=palaceReadings[palace];
+ // 回座宮を主役にし、数秘によって行動の候補を変える。
+ return p.actions[(num===11?1:num===22?2:(num-1)%3)]+'。';
 }
-const sumDigits=s=>[...String(s)].reduce((a,c)=>a+(Number(c)||0),0);
-function reduce(n){while(n>9&&n!==11&&n!==22)n=sumDigits(n);return n}
-function root(n){while(n>9)n=sumDigits(n);return n}
-function starFromYear(y){return ((11-root(y)-1+900)%9)+1}
-function honmei(date){let [y,m,d]=date.split('-').map(Number),uncertain=false;if(m===1||(m===2&&d<=2))y--;else if(m===2&&(d===3||d===4)){uncertain=true;y--}return {star:starFromYear(y),uncertain}}
-function startAt(date,year,month,day){const [by,bm,bd]=date.split('-').map(Number);return {y:year-((month<bm||(month===bm&&day<bd))?1:0),m:bm,d:bd}}
-function base(s){return sumDigits(`${s.y}${String(s.m).padStart(2,'0')}${String(s.d).padStart(2,'0')}`)}
-function yearN(s){return reduce(base(s))}function monthN(s,m){return reduce(base(s)+m)}
-function pos(star,center){return palaces[(star-center+9)%9]}
-function makeData(name,date,override){const h=honmei(date),star=override||h.star,annualStart=startAt(date,2027,1,1),annualEnd=startAt(date,2027,12,31);const months=[1,2,3].map((m,i)=>{const start=startAt(date,2027,m,1),end=startAt(date,2027,m,new Date(2027,m,0).getDate());return {m,n:monthN(start,m),endN:monthN(end,m),p:pos(star,[6,5,4][i])}});return {name,date,h,star,annualStart,annualEnd,year:yearN(annualStart),yearEnd:yearN(annualEnd),p:pos(star,9),months}}
-const canvas=$('paper'),ctx=canvas.getContext('2d');const W=1240,H=1754;
-function font(size,bold=false){ctx.font=`${bold?'700':'400'} ${size}px -apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sans-serif`}
-function fill(text,x,y,size=28,color='#403732',bold=false){ctx.fillStyle=color;font(size,bold);ctx.fillText(text,x,y)}
-function wrap(text,x,y,maxWidth,size=28,line=43,color='#403732',bold=false){ctx.fillStyle=color;font(size,bold);let cur='',yy=y;for(const ch of text){if(ctx.measureText(cur+ch).width>maxWidth&&cur){ctx.fillText(cur,x,yy);yy+=line;cur=''}cur+=ch}if(cur)ctx.fillText(cur,x,yy);return yy+line}
-function rounded(x,y,w,h,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill()}
-const assetNames=['YUKIKO.PNG','MIROKUMAN.PNG','UMEKO.PNG','QR_YUKIKO.jpg','QR_369.jpg','QR_UMEKO.jpg'];const images={};async function loadAssets(){await Promise.all(assetNames.map(n=>new Promise(resolve=>{let img=new Image();img.onload=()=>{images[n]=img;resolve()};img.onerror=resolve;img.src=n})));}
-function drawContain(img,x,y,w,h){if(!img)return;let r=Math.min(w/img.naturalWidth,h/img.naturalHeight),iw=img.naturalWidth*r,ih=img.naturalHeight*r;ctx.drawImage(img,x+(w-iw)/2,y+(h-ih)/2,iw,ih)}
-function drawQR(img,x,y,size){if(!img)return;
-// Preserve the complete QR pattern, including all three corner markers.
-// The supplied Instagram screenshots have the QR at approximately x=294..886, y=116..703.
-// Crop a square around the full pattern and retain a white quiet zone.
-const sx=276, sy=98, side=630;
-ctx.fillStyle='#ffffff';ctx.fillRect(x-12,y-12,size+24,size+24);
-ctx.save();ctx.imageSmoothingEnabled=false;
-ctx.drawImage(img,sx,sy,side,side,x,y,size,size);
-ctx.restore();
-}
-function fitWrap(text,x,y,width,size,line,maxLines,color='#403732',bold=false){
- ctx.fillStyle=color;font(size,bold);let lines=[],cur='';
- for(const ch of text){if(ctx.measureText(cur+ch).width>width&&cur){lines.push(cur);cur=''}cur+=ch}if(cur)lines.push(cur);
- if(lines.length>maxLines){lines=lines.slice(0,maxLines);let last=lines[maxLines-1];while(ctx.measureText(last+'…').width>width)last=last.slice(0,-1);lines[maxLines-1]=last+'…';}
- lines.forEach((l,i)=>ctx.fillText(l,x,y+i*line));return lines.length;
-}
-function fitHeading(t,x,y,maxWidth,size=29){font(size,true);while(ctx.measureText(t).width>maxWidth&&size>19){size--;font(size,true)}fill(t,x,y,size,'#453c35',true)}
+const closingByStar={
+ 1:'自分の気持ちを大切にすることも、前に進む力になります。次の季節も、心の声を忘れずに。',
+ 2:'目立たない積み重ねにも、ちゃんと意味があります。これからも自分の歩幅で育てていってね。',
+ 3:'新しい発見を楽しむ気持ちを、どうか大切に。次の季節にも、あなたらしい芽が育ちますように。',
+ 4:'人とのご縁を大切にするあなた自身のことも、忘れずに。やさしい風が吹く季節になりますように。',
+ 5:'自分で選んできた道を、どうか信じてあげてね。次の季節は、また新しい景色が見えるかもしれません。',
+ 6:'頑張ってきた自分を認めて、肩の力を少し抜いてみて。次の季節も、あなたの歩幅で大丈夫。',
+ 7:'楽しむことも、大切な一歩です。次の季節も、心が喜ぶ時間を見つけていってね。',
+ 8:'積み重ねた時間は、あなたの力になっています。変わることも守ることも、自分らしく選んでね。',
+ 9:'心に灯った小さな気づきを、これからも大切に。次の季節の景色を楽しみにしていてね。'
+};
 function render(d){
  ctx.setTransform(2,0,0,2,0,0);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
  fill('みろく流  季節の運気だより',80,91,25,'#90715b',true);
@@ -170,7 +172,7 @@ function render(d){
   const action=fusionAction(m.n,d.star,m.p);
   fitWrap(`今月の一歩：${action}`,86,y+224,1050,22,28,1,'#72806a',true);
  });
- const closing=['小さな積み重ねも、ちゃんと未来につながっています。自分の歩幅を大切にね。','今すぐ答えが見つからなくても大丈夫。あなたらしい道を、ゆっくり選んでいきましょう。','ここまで歩いてきた自分を、どうか認めてあげてね。次の季節も、あなたらしく。'][d.year%3];
+ const closing=closingByStar[d.star];
  fill('みろくから最後にひと言',85,1365,26,'#8e685b',true);
  fitWrap(closing,85,1405,1060,24,31,2);
  ctx.strokeStyle='#e5d6ca';ctx.beginPath();ctx.moveTo(60,1475);ctx.lineTo(1180,1475);ctx.stroke();
