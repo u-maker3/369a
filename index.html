@@ -38,21 +38,49 @@ const numLead={1:'新しい選択を試す',2:'相手との歩調を確かめる
 const palaceScene={C:'自分の気持ち',NW:'役割や決断',W:'会話や楽しみ',NE:'暮らしの節目',S:'学びや表現',N:'休息と準備',SW:'毎日の生活',E:'新しい挑戦',SE:'人とのつながり'};
 const starApproach={1:'気持ちを整理してから',2:'日々の暮らしを大切にしながら',3:'好奇心を生かして',4:'周りと相談しながら',5:'優先順位を見直しながら',6:'一人で背負い込まず',7:'楽しさも忘れずに',8:'これまでの経験を生かして',9:'感じたことを言葉にして'};
 const numActions={1:'自分で決めたいことを一つ選ぶ',2:'大切な人の話をゆっくり聞く',3:'好きなことを誰かに伝える',4:'一日の習慣を一つ整える',5:'いつもと違う方法を一つ試す',6:'身近な人に感謝を伝える',7:'静かに考える時間を取る',8:'続けてきたことを振り返る',9:'手放したいことを一つ書く',11:'心に残った直感をメモする',22:'目標を小さな手順に分ける'};
-function fusionTitle(num,star,palace){
- const p=palaceWords[palace];
- return `${p.t}、${numLead[num]}とき`;
-}
+// 九星の個性を先に選び、宮の舞台と数秘の動きを一つの文章へ統合する。
+const starScenes={
+1:{subject:'気持ちの輪郭',lens:'自分の本音を確かめ',care:'周囲に合わせすぎず',do:'気持ちを静かに書き出す'},
+2:{subject:'毎日の安心',lens:'暮らしの小さな積み重ねを大切にし',care:'自分の負担も見落とさず',do:'生活の中で一つ負担を減らす'},
+3:{subject:'挑戦する楽しさ',lens:'好奇心を小さな行動につなげ',care:'急いで答えを決めず',do:'興味のあることを一つ試す'},
+4:{subject:'信頼の育て方',lens:'人との対話を丁寧に重ね',care:'相手の期待だけを優先せず',do:'伝えたいことを一つ言葉にする'},
+5:{subject:'自分で選ぶ力',lens:'大切にしたい順番を見つめ直し',care:'何もかも一度に動かそうとせず',do:'役割の優先順位を整理する'},
+6:{subject:'理想と現実のバランス',lens:'責任を一人で背負い込まず',care:'完璧を求めすぎず',do:'頼れることを一つ相談する'},
+7:{subject:'心が喜ぶ時間',lens:'会話や楽しみの中からヒントを拾い',care:'人に合わせて無理をせず',do:'心地よい交流の時間をつくる'},
+8:{subject:'積み重ねの節目',lens:'続けてきたことの価値を確かめ',care:'変化を急ぎすぎず',do:'残すものと見直すものを分ける'},
+9:{subject:'気づきを形にする力',lens:'学びや発見を自分の言葉にし',care:'評価に振り回されず',do:'最近の気づきを一つ記録する'}
+};
+const stageScenes={
+C:{field:'自分自身の軸',verb:'今の優先順位を整える',hint:'いま大切にしたいことを一つ選ぶ'},
+NW:{field:'役割や目標',verb:'背負うものを選び直す',hint:'自分の役割を一つ見直す'},
+W:{field:'会話と楽しみ',verb:'喜びを人と分かち合う',hint:'うれしかったことを誰かに伝える'},
+NE:{field:'暮らしの節目',verb:'変えることと残すことを見極める',hint:'習慣を一つ見直す'},
+S:{field:'学びと表現',verb:'気づきを言葉にする',hint:'発見を短く書き留める'},
+N:{field:'休息と準備',verb:'立ち止まって力を蓄える',hint:'休む時間を先に確保する'},
+SW:{field:'日々の暮らし',verb:'小さな土台を育てる',hint:'毎日続けられる工夫を一つ選ぶ'},
+E:{field:'新しい挑戦',verb:'できる範囲から動き出す',hint:'気になることを一つ試す'},
+SE:{field:'人とのご縁',verb:'信頼を丁寧に育てる',hint:'大切な人に近況を伝える'}
+};
+const flowScenes={
+1:{title:'自分で選ぶ一歩',move:'新しい選択を小さく試す',tip:'自分で決めたいことを一つ選ぶ'},
+2:{title:'歩調を合わせる時間',move:'人との歩調を確かめる',tip:'大切な人の話をゆっくり聞く'},
+3:{title:'楽しさを広げる季節',move:'好きなことを表現する',tip:'うれしかったことを言葉にする'},
+4:{title:'暮らしを整える季節',move:'続けやすい仕組みを作る',tip:'毎日の習慣を一つ整える'},
+5:{title:'変化を受け入れるとき',move:'新しい方法を取り入れる',tip:'いつもと違う方法を一つ試す'},
+6:{title:'大切なものを育てる',move:'身近な人や居場所をいたわる',tip:'身近な人に感謝を伝える'},
+7:{title:'静かに深める時間',move:'学びや内省を深める',tip:'一人で考える時間を取る'},
+8:{title:'積み重ねを形にする',move:'続けてきた努力を確かめる',tip:'成果を一つ書き出す'},
+9:{title:'次への余白をつくる',move:'一区切りをつける',tip:'手放したいことを一つ整理する'},
+11:{title:'感性を信じる季節',move:'心に響く気づきを確かめる',tip:'直感を一つメモする'},
+22:{title:'理想を育てる季節',move:'願いを現実的な計画に変える',tip:'目標を小さな手順に分ける'}
+};
+function fusionTitle(num,star,palace){const a=starScenes[star],b=stageScenes[palace],c=flowScenes[num];return `${a.subject}を大切に、${c.title}`;}
 function fusionMessage(num,star,palace,monthly=false){
- const n=themes[num],p=palaceWords[palace],approach=starApproach[star];
- if(monthly){
-  return `${n.a}${palaceScene[palace]}にも目を向け、${approach}今できることを選んでみましょう。${p.s.split('。')[0]}。`;
- }
- return `この年は「${numLead[num]}」ことが一つのテーマ。${p.s.split('。')[0]}。${approach}、${n.a}`;
+ const a=starScenes[star],b=stageScenes[palace],c=flowScenes[num];
+ if(monthly)return `今月は${b.field}に目を向けながら、${c.move}ことを意識したい時期。${a.lens}、${b.verb}ことが今の自分に合う進み方を見つける助けになります。${a.care}、できることから少しずつ。`;
+ return `この一年は、${b.field}を見つめながら${c.move}ことがテーマ。${a.lens}、${b.verb}ことを大切にしてみましょう。${a.care}、自分の歩幅で進むことが次の季節につながります。`;
 }
-function fusionAction(num,star,palace){
- const p=palaceWords[palace];
- return `${numActions[num]}。${p.action.replace(/[。！!]+$/,'')}`;
-}
+function fusionAction(num,star,palace){const a=starScenes[star],b=stageScenes[palace],c=flowScenes[num];const options=[a.do,b.hint,c.tip];return options[(num+star+palaces.indexOf(palace))%3]+'。';}
 const sumDigits=s=>[...String(s)].reduce((a,c)=>a+(Number(c)||0),0);
 function reduce(n){while(n>9&&n!==11&&n!==22)n=sumDigits(n);return n}
 function root(n){while(n>9)n=sumDigits(n);return n}
@@ -86,7 +114,7 @@ function fitWrap(text,x,y,width,size,line,maxLines,color='#403732',bold=false){
  if(lines.length>maxLines){lines=lines.slice(0,maxLines);let last=lines[maxLines-1];while(ctx.measureText(last+'…').width>width)last=last.slice(0,-1);lines[maxLines-1]=last+'…';}
  lines.forEach((l,i)=>ctx.fillText(l,x,y+i*line));return lines.length;
 }
-function fitHeading(t,x,y,maxWidth,size=29){font(size,true);while(ctx.measureText(t).width>maxWidth&&size>22){size--;font(size,true)}fill(t,x,y,size,'#453c35',true)}
+function fitHeading(t,x,y,maxWidth,size=29){font(size,true);while(ctx.measureText(t).width>maxWidth&&size>19){size--;font(size,true)}fill(t,x,y,size,'#453c35',true)}
 function render(d){
  ctx.setTransform(2,0,0,2,0,0);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
  fill('みろく流  季節の運気だより',80,91,25,'#90715b',true);
@@ -106,9 +134,9 @@ function render(d){
   fitHeading(fusionTitle(m.n,d.star,m.p),214,y+51,930,29);
   let msg=fusionMessage(m.n,d.star,m.p,true);
   if(m.n!==m.endN){const bd=Number(d.date.slice(8));msg+=` ${bd}日からは次の流れも重なります。`;}
-  fitWrap(msg,86,y+98,1060,24,34,3);
+  fitWrap(msg,86,y+97,1060,23,32,4);
   const action=fusionAction(m.n,d.star,m.p);
-  fitWrap(`今月の一歩：${action}`,86,y+219,1050,23,29,1,'#72806a',true);
+  fitWrap(`今月の一歩：${action}`,86,y+224,1050,22,28,1,'#72806a',true);
  });
  const closing=['小さな積み重ねも、ちゃんと未来につながっています。自分の歩幅を大切にね。','今すぐ答えが見つからなくても大丈夫。あなたらしい道を、ゆっくり選んでいきましょう。','ここまで歩いてきた自分を、どうか認めてあげてね。次の季節も、あなたらしく。'][d.year%3];
  fill('みろくから最後にひと言',85,1365,26,'#8e685b',true);
@@ -120,6 +148,6 @@ function render(d){
  fill('うめこの脳みそと、ゆきこの脳みそ。ふたつの視点が合わさった、みろく流の季節のメッセージ。',62,1706,18,'#82766e');
  fill('次の季節のメッセージをご希望の方は、InstagramのDMから直接ご連絡ください。',62,1734,18,'#82766e');
 }
-async function run(){const date=$('birthday').value,name=$('person').value.trim()||'お客さま';if(!date){alert('生年月日を入力してな');return}const ov=Number($('override').value)||0,d=makeData(name,date,ov);if(d.h.uncertain&&!ov){$('alert').textContent='立春前後の生まれ（2月3日・4日）は出生時刻による確認が必要です。本命星を資料で確認し、手動選択してください。';$('alert').classList.remove('hidden');$('result').classList.add('hidden');return}$('alert').classList.add('hidden');$('check').textContent=`管理用検算（印刷画像には出ません）｜本命星：${['','一白','二黒','三碧','四緑','五黄','六白','七赤','八白','九紫'][d.star]}｜年運 ${d.year} → ${d.yearEnd}｜1〜3月 ${d.months.map(m=>m.n+(m.n!==m.endN?'→'+m.endN:'')).join('・')}｜回座 年 ${d.p}／月 ${d.months.map(m=>m.p).join('・')}`;await loadAssets();render(d);$('result').classList.remove('hidden');$('saveArea').classList.add('hidden');$('result').scrollIntoView({behavior:'smooth'});}
+async function run(){const date=$('birthday').value,name=$('person').value.trim()||'お客さま';if(!date){alert('生年月日を入力してな');return}const ov=Number($('override').value)||0,d=makeData(name,date,ov);if(d.h.uncertain&&!ov){$('alert').textContent='立春前後の生まれ（2月3日・4日）は出生時刻による確認が必要です。本命星を資料で確認し、手動選択してください。';$('alert').classList.remove('hidden');$('result').classList.add('hidden');return}$('alert').classList.add('hidden');$('check').textContent=`管理用検算（印刷画像には出ません／節入り境界の暦照合は未完了）｜本命星：${['','一白','二黒','三碧','四緑','五黄','六白','七赤','八白','九紫'][d.star]}｜年運 ${d.year} → ${d.yearEnd}｜1〜3月 ${d.months.map(m=>m.n+(m.n!==m.endN?'→'+m.endN:'')).join('・')}｜回座 年 ${d.p}／月 ${d.months.map(m=>m.p).join('・')}`;await loadAssets();render(d);$('result').classList.remove('hidden');$('saveArea').classList.add('hidden');$('result').scrollIntoView({behavior:'smooth'});}
 $('generate').addEventListener('click',run);$('sample').addEventListener('click',()=>{$('person').value='うめこ';$('birthday').value='1976-10-15';$('override').value='';run()});$('save').addEventListener('click',()=>{let url=canvas.toDataURL('image/png');$('saveImg').src=url;$('saveArea').classList.remove('hidden');const a=document.createElement('a');a.href=url;a.download='みろく流_2027年運気だより.PNG';document.body.appendChild(a);a.click();a.remove();});
 </script></body></html>
