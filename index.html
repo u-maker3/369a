@@ -16,7 +16,39 @@ SW:{t:'日々を育てる',s:'大きな変化より、いつもの暮らしを�
 E:{t:'小さく始める',s:'気になっていたことに、そっと一歩を踏み出すきっかけがありそう。完璧な準備を待たず、できる範囲から試してみましょう。',action:'温めていたアイデアを一つ試す'},
 SE:{t:'ご縁を育てる',s:'人とのやり取りの中に、新しい視点が見つかるかもしれません。急いで関係を広げるより、今あるつながりを丁寧に育てて。',action:'気になっていた人に近況を伝える'}
 };
-function fusion(theme,palace){return `${theme.a} ${palace.s}`}
+// みろく流独自の文章合成：数秘のテーマ×本命星の視点×回座宮の象意。
+const starVoices={
+1:{focus:'気持ちの整理',style:'気持ちを言葉にする前に、まず自分の本音を静かに確かめること',verb:'ひとりで落ち着ける時間を確保する',angle:'内面'},
+2:{focus:'暮らしの土台',style:'目の前の人や日々の暮らしを、無理のないペースで丁寧に支えること',verb:'生活の中で続けたいことを一つ決める',angle:'暮らし'},
+3:{focus:'挑戦と発信',style:'思いついたことを小さく試し、経験を通して自分の可能性を広げること',verb:'新しいアイデアを一つ試してみる',angle:'挑戦'},
+4:{focus:'人との信頼',style:'人の意見も受け取りながら、自分の思いを穏やかに伝えること',verb:'大切な人と丁寧に話す',angle:'ご縁'},
+5:{focus:'選択と調整',style:'周囲の変化に振り回されず、自分にとって大切な順番を決めること',verb:'抱えている役割を一度整理する',angle:'選択'},
+6:{focus:'責任と自立',style:'頑張りすぎず、任せられることは人に託して自分の意思を大切にすること',verb:'一つだけ人に頼ってみる',angle:'役割'},
+7:{focus:'喜びと交流',style:'成果だけでなく、人と分かち合う喜びや楽しさにも目を向けること',verb:'気の合う人との時間をつくる',angle:'交流'},
+8:{focus:'節目と継続',style:'変えるべきことと守りたいことを見極め、着実に次の段階へ進むこと',verb:'続けることと見直すことを書き分ける',angle:'節目'},
+9:{focus:'気づきと表現',style:'心に浮かんだ発見を整理し、伝えるべきことを自分らしい言葉にすること',verb:'学んだことを短くまとめてみる',angle:'学び'}
+};
+const numerologyAngles={
+1:'自分から選ぶ',2:'歩調を合わせる',3:'思いを表現する',4:'仕組みを整える',5:'新しい風を取り入れる',6:'大切なものを守る',7:'深く見つめる',8:'成果につなげる',9:'一区切りをつける',11:'直感を確かめる',22:'理想を現実に近づける'
+};
+const palaceFocus={C:'自分の中心',NW:'責任と決断',W:'喜びと会話',NE:'変化の節目',S:'学びと気づき',N:'休息と準備',SW:'日常の積み重ね',E:'始まりと行動',SE:'ご縁と調和'};
+function fusionMessage(num,star,palace,monthly=false){
+ const n=themes[num],v=starVoices[star],p=palaceWords[palace];
+ const intro=monthly?`今月は「${numerologyAngles[num]}」ことが心のテーマ。`:`この時期は「${numerologyAngles[num]}」ことが大切なテーマです。`;
+ const middle=monthly?`${v.focus}を意識して、${v.verb}ことから始めてみましょう。`:`${v.focus}を大切にするあなたには、${v.style}が、この流れを自分らしく生かす鍵になりそう。`;
+ const tail=monthly?`${palaceFocus[palace]}にも目を向けると、今月の過ごし方が見えてきそうです。`:`${palaceFocus[palace]}にも目を向けて、${p.s.split('。')[0]}。`;
+ return intro+middle+tail;
+}
+function fusionTitle(num,star,palace){
+ const n=themes[num],v=starVoices[star];
+ const heads={内面:'心に寄り添う',暮らし:'日々を育てる',挑戦:'可能性を広げる',ご縁:'つながりを深める',選択:'自分らしく選ぶ',役割:'肩の力を抜いて進む',交流:'喜びを分かち合う',節目:'次の段階へ整える',学び:'気づきを未来へつなぐ'};
+ return `${heads[v.angle]}、${numerologyAngles[num]}季節`;
+}
+function fusionAction(num,star,palace){
+ const v=starVoices[star],p=palaceWords[palace];
+ // 3要素から行動を選び、同じ月運でも星により提案を変える
+ return `${v.verb}。${p.action}ことも意識して。`;
+}
 
 const sumDigits=s=>[...String(s)].reduce((a,c)=>a+(Number(c)||0),0);
 function reduce(n){while(n>9&&n!==11&&n!==22)n=sumDigits(n);return n}
@@ -46,10 +78,10 @@ ctx.drawImage(img,sx,sy,side,side,x,y,size,size);
 ctx.restore();
 }
 function render(d){ctx.setTransform(2,0,0,2,0,0);ctx.fillStyle='#ffffff';ctx.fillRect(0,0,W,H);rounded(46,45,1148,155,20,'#ffffff');fill('みろく流  季節の運気だより',80,99,25,'#90715b',true);fill(`${d.name}さんへのメッセージ`,80,151,43,'#3c352f',true);fill(`${d.name} 様   ｜   1月・2月・3月号`,82,188,22,'#786d65');
-const year=themes[d.year],yearPal=palaceWords[d.p];fill('2027年のテーマ',70,259,28,'#92735e',true);fill(`「${year.t}」`,70,317,43,'#493b34',true);
-let annual=fusion(year,yearPal);if(d.year!==d.yearEnd){const [by,bm,bd]=d.date.split('-').map(Number);annual+=` ${bm}月${bd}日の誕生日からは「${themes[d.yearEnd].t}」という新しいテーマへ。少しずつ気持ちを切り替えていきましょう。`}
-wrap(annual,72,372,1090,29,45);ctx.strokeStyle='#eaded3';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(70,525);ctx.lineTo(1170,525);ctx.stroke();
-const monthStarts=[565,829,1093];d.months.forEach((m,i)=>{let y=monthStarts[i],n=themes[m.n],p=palaceWords[m.p];rounded(60,y,1120,242,18,'#ffffff');ctx.strokeStyle='#ded8d2';ctx.lineWidth=2;ctx.strokeRect(60,y,1120,242);fill(`${m.m}月`,84,y+54,38,'#775e4d',true);fill(n.t,216,y+54,33,'#453c35',true);let msg=`${n.a} ${p.s.split("。")[0]}。`;if(m.n!==m.endN){const bd=Number(d.date.slice(8));msg+=` 誕生日の${bd}日からは、少し違う流れも重なります。`}wrap(msg,86,y+109,1060,27,39);fill(`今月の一歩：${p.action}`,86,y+210,25,'#72806a',true)});
+const year=themes[d.year],yearPal=palaceWords[d.p];fill('2027年のテーマ',70,259,28,'#92735e',true);fill(`「${fusionTitle(d.year,d.star,d.p)}」`,70,317,34,'#493b34',true);
+let annual=fusionMessage(d.year,d.star,d.p);if(d.year!==d.yearEnd){const [by,bm,bd]=d.date.split('-').map(Number);annual+=` ${bm}月${bd}日の誕生日からは「${themes[d.yearEnd].t}」という新しいテーマへ。少しずつ気持ちを切り替えていきましょう。`}
+wrap(annual,72,372,1090,27,41);ctx.strokeStyle='#eaded3';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(70,525);ctx.lineTo(1170,525);ctx.stroke();
+const monthStarts=[565,829,1093];d.months.forEach((m,i)=>{let y=monthStarts[i],n=themes[m.n],p=palaceWords[m.p];rounded(60,y,1120,242,18,'#ffffff');ctx.strokeStyle='#ded8d2';ctx.lineWidth=2;ctx.strokeRect(60,y,1120,242);fill(`${m.m}月`,84,y+54,38,'#775e4d',true);fill(fusionTitle(m.n,d.star,m.p),216,y+54,29,'#453c35',true);let msg=fusionMessage(m.n,d.star,m.p,true);if(m.n!==m.endN){const bd=Number(d.date.slice(8));msg+=` 誕生日の${bd}日からは、少し違う流れも重なります。`}wrap(msg,86,y+109,1060,27,39);fill(`今月の一歩：${starVoices[d.star].verb}`,86,y+210,25,'#72806a',true)});
 const closing=[
 '小さな積み重ねも、ちゃんと未来につながっています。自分の歩幅を大切にね。',
 '今すぐ答えが見つからなくても大丈夫。あなたらしい道を、ゆっくり選んでいきましょう。',
