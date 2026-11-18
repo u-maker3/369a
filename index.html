@@ -571,14 +571,38 @@ const annualJoint={
  NW:{8:'責任ある役割では、努力を成果に変えるために期限と優先順位を明確にしましょう。',9:'引き受けてきた役割を見直し、次に残す責任を選びましょう。'},
  W:{8:'これまでの成果を誰かと分かち合うことで、努力の価値を確かめる一年に。',9:'続いてきた関係に感謝を伝え、これから大切にしたい交流を選びましょう。'}
 };
+const annualPractical={
+ C:'予定・人間関係・仕事の中から、今の自分が本当に担うことを選び直しましょう。',
+ NW:'引き受ける役割を明確にし、責任を果たすための時間と協力者を確保しましょう。',
+ W:'成果だけを追わず、好きなことや人との交流を日常に取り入れてみましょう。',
+ NE:'これまでの習慣を点検し、続けたいことと変えたいことを分けて考えましょう。',
+ S:'学んだことや経験を振り返り、自分の言葉で伝える機会をつくりましょう。',
+ N:'予定を詰め込みすぎず、休息・学び・準備に使う時間を先に確保しましょう。',
+ SW:'仕事の手順や家事の負担を見直し、無理なく続く仕組みを一つずつつくりましょう。',
+ E:'気になる挑戦を小さく試し、続けるかどうかは実際の手応えで判断しましょう。',
+ SE:'大切な人との約束や連絡を丁寧にし、自分の希望も言葉にして伝えましょう。'
+};
+const annualCyclePractice={
+ 1:'新しいことは一つに絞り、始める日を決めると取り組みやすくなります。',
+ 2:'協力する相手と希望や役割を確かめ、無理のない歩幅を探しましょう。',
+ 3:'楽しさや発想を、普段の活動の中で形にしてみましょう。',
+ 4:'続ける手順を決め、少しずつ習慣として根づかせましょう。',
+ 5:'いつもと違う方法を一つ試し、合うかどうかを見極めましょう。',
+ 6:'周りを大切にする時間と、自分をいたわる時間を両方確保しましょう。',
+ 7:'気になることを一つ掘り下げ、納得してから次へ進みましょう。',
+ 8:'積み重ねた努力を振り返り、成果や進み具合を具体的に確認しましょう。',
+ 9:'役目を終えたことに区切りをつけ、次へ残すものを選びましょう。',
+ 11:'心に残ったひらめきを書き留め、実際に確かめてみましょう。',
+ 22:'大きな目標を小さな工程に分け、最初の一つから進めましょう。'
+};
 function annualReading(d){
  const [title,opening]=annualPalaceText[d.p];
  const joint=annualJoint[d.p]?.[d.year]||cycleGoals[d.year].annual;
- let body=opening+' '+joint;
- // 年の途中で誕生日サイクルが切り替わる場合のみ、後半の意識を具体化。
+ // 回座宮の年間テーマ→具体的な生活場面→年数秘の取り組み方→誕生日後の変化。
+ let body=opening+' '+annualPractical[d.p]+' '+joint+' '+annualCyclePractice[d.year];
  if(d.year!==d.yearEnd){
   const [,bm,bd]=d.date.split('-').map(Number);
-  body+=` ${bm}月${bd}日からは「${annualCycleTitle[d.yearEnd]}」へ。${cycleGoals[d.yearEnd].annual}`;
+  body+=` ${bm}月${bd}日の誕生日からは「${annualCycleTitle[d.yearEnd]}」へ意識を切り替える節目です。${annualCyclePractice[d.yearEnd]}`;
  }
  return {title,body};
 }
@@ -608,7 +632,7 @@ function render(d){
  fill('2027年のテーマ',70,246,27,'#92735e',true);
  const yr=annualReading(d);
  fitHeading(`「${yr.title}」`,70,295,1080,31);
- fitWrap(yr.body,72,340,1090,21,31,5);
+ fitWrap(yr.body,72,340,1090,20,27,6);
  ctx.strokeStyle='#eaded3';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(70,500);ctx.lineTo(1170,500);ctx.stroke();
  const monthStarts=[522,789,1056];
  d.months.forEach((m,i)=>{
