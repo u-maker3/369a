@@ -404,33 +404,65 @@ const palaceScenes={
  E:{place:'新しい動き',need:'小さな挑戦',bridge:'思いつきをすぐに大きくせず、手応えを見ながら試す',action:'気になることを一つ試す'},
  SE:{place:'ご縁と信頼',need:'丁寧な対話',bridge:'相手の話を聞きながら、自分の希望も伝える',action:'伝えたいことを一つ話す'}
 };
-function integrate(p,n,star,month){
- const sc=palaceScenes[p],cy=cycleIntent[n],lens=starMonthly[star];
- const title=`${sc.need}を整え、${cy.verb}`;
- // 同じ星でも月ごとに別の視点を使い、数秘の助言は一度だけ組み込む。
- const personal=[`そのときは、${lens.approach}、${lens.care}進めてみましょう。`,
- `あなたの場合は、${lens.lead}、無理のない順番を選ぶことが大切です。`,
- `まずは${lens.action}ことから、今の自分に合う形を確かめてみましょう。`][(month-1)%3];
- const action=(month%2===0?cy.act:sc.action);
- return {title,body:`${sc.place}に目を向け、${sc.bridge}ことが今月の軸になります。そこへ数秘の「${cy.phrase}」という課題を重ねると、${sc.need}を意識しながら行動を選ぶことが大切です。${personal}`,action};
-}
+// 2026-11-18 意識を伝える鑑定：宮の生活場面を主軸に、数秘を行動へ変換。
+// 説明用語や数字は本文に出さず、計算結果に紐づく辞書のみ使用する。
+const livedScenes={
+ C:{head:'今の自分に必要なものを選ぶ',setting:'忙しい日々の中で、何を大切にしたいか見直す時間を持ってみましょう。',care:'すべてを同時に片づけなくても大丈夫です。'},
+ NW:{head:'役割を選び、力を注ぐ',setting:'頼まれごとや目標に向き合うときは、引き受ける範囲を自分で選んでみましょう。',care:'責任を果たすことと、一人で背負うことは別です。'},
+ W:{head:'楽しみを日々の力にする',setting:'身近な人との会話や、心が弾む時間をいつもより丁寧に味わってみましょう。',care:'楽しむ時間を後回しにしすぎないでください。'},
+ NE:{head:'変えることと残すことを選ぶ',setting:'今まで続けてきた習慣が、今の暮らしに合っているか確かめてみましょう。',care:'変化を急ぐより、守りたいものを見極めることが先です。'},
+ S:{head:'気づきを自分の言葉にする',setting:'学んだことや心に残った出来事を、振り返って言葉にする時間を持ちましょう。',care:'人からの評価より、自分が何を感じたかを大切にしてください。'},
+ N:{head:'静かな時間で次に備える',setting:'目に見える成果を急がず、休息や下準備に目を向けてみましょう。',care:'立ち止まることも、これからを整える選択です。'},
+ SW:{head:'暮らしの土台を育てる',setting:'身近な暮らしや毎日の習慣を、無理のない形に整えてみましょう。',care:'小さな積み重ねを軽く見ないでください。'},
+ E:{head:'小さな挑戦を始める',setting:'気になっていたことを、できる範囲で一つ試してみましょう。',care:'最初から完璧な結果を求めなくても大丈夫です。'},
+ SE:{head:'言葉を交わし、信頼を育てる',setting:'大切な人とのやり取りに、いつもより少し時間をかけてみましょう。',care:'相手を尊重しながら、自分の希望も伝えてください。'}
+};
+const movementLinks={
+ 1:'その中で、自分から選べる最初の一歩を見つけてください。',
+ 2:'相手の歩幅を確かめ、自分の気持ちも置き去りにしないで。',
+ 3:'心が弾む工夫を一つ加えると、続ける楽しみが生まれます。',
+ 4:'無理なく続けられる手順に落とし込んでみましょう。',
+ 5:'いつもと違う方法も、小さく試して確かめてみてください。',
+ 6:'人を大切にするのと同じように、自分の負担も見直しましょう。',
+ 7:'答えを急がず、自分が納得できるまで確かめてください。',
+ 8:'これまでの積み重ねを、具体的な成果につなげてみましょう。',
+ 9:'役目を終えたものを整理し、次のための余白をつくりましょう。',
+ 11:'ふと心に残ったことを、落ち着いて確かめてみてください。',
+ 22:'思い描いたことを、実行できる小さな段取りに変えましょう。'
+};
+const personalModes={
+ 1:['気持ちを静かに整理してから選ぶと、納得しやすくなります。','周りの意見を聞いたあと、自分の本音も確かめてください。','一人で考える時間が、次の判断を支えます。'],
+ 2:['暮らしの負担を減らす視点も忘れないでください。','身近な人を支えるように、自分の生活もいたわって。','日常の小さな工夫を大切にしましょう。'],
+ 3:['好奇心を生かし、試しながら考えてみてください。','思いつきを小さな行動に変えるのが助けになります。','勢いに任せず、試した手応えを確かめて。'],
+ 4:['周りと話し合いながら、自分の希望も伝えてください。','丁寧な対話を通じて、心地よい形を探しましょう。','人に合わせすぎず、自分のペースも守って。'],
+ 5:['いま大切な順番を一つ決めると、動きやすくなります。','周りの期待だけでなく、自分の納得も大切に。','一度に抱えず、役割を整理してみてください。'],
+ 6:['自分が担うことと、人に任せることを分けてみましょう。','理想を大切にしながら、無理のない進め方を選んで。','責任を感じるときほど、相談する余地も残してください。'],
+ 7:['心が喜ぶ時間を、予定の中に残してみてください。','気を遣いすぎず、心地よい距離を選びましょう。','小さな楽しみも、毎日の支えになります。'],
+ 8:['積み重ねた経験を、今の判断に生かしてみましょう。','変えることと守ることを、自分のペースで選んで。','これまでの努力を確かめてから、次へ進みましょう。'],
+ 9:['気づいたことを言葉にすると、方向が見えやすくなります。','学んだことを、日々の暮らしに生かしてみて。','自分の感じたことを丁寧に整理してください。']
+};
 function annualReading(d){
- const sc=palaceScenes[d.p],cy=cycleIntent[d.year],lens=starMonthly[d.star];
- let body=`九星の年盤では「${sc.place}」が中心となります。${sc.bridge}ことを意識しましょう。数秘の年サイクルは${d.year}。${cy.phrase}という視点を加え、${lens.care}、一年の進み方を整えてください。`;
- if(d.year!==d.yearEnd){const [,bm,bd]=d.date.split('-').map(Number);body+=`${bm}月${bd}日の誕生日から数秘は${d.yearEnd}へ切り替わります。`}
- return {title:palaceAnnual[d.p],body};
+ const scene=livedScenes[d.p],cycle=cycleIntent[d.year];
+ let body=scene.setting+movementLinks[d.year]+personalModes[d.star][0];
+ if(d.year!==d.yearEnd){const [,bm,bd]=d.date.split('-').map(Number);body+=`${bm}月${bd}日ごろからは、取り組み方を少し見直す節目になります。`;}
+ return {title:scene.head,body};
 }
 function monthReading(m,d){
- const r=integrate(m.p,m.n,d.star,m.m),prior=palaceScenes[m.pBefore];
- // 節入りの意味は短い移行文にまとめ、毎月同じ「月初は～」を繰り返さない。
- const transitions=[
- `節入り前は${prior.need}を見直し、その後は${palaceScenes[m.p].need}に意識を移してみましょう。`,
- `節入りを境に、${prior.place}から${palaceScenes[m.p].place}へと関心の置きどころが変わります。`,
- `節入りまでは${prior.need}を確かめ、以降は${palaceScenes[m.p].need}を大切にしてください。`
- ];
- let body=r.body+' '+transitions[(m.m-1)%3];
- if(m.n!==m.endN){const bd=Number(d.date.slice(8));body+=` ${m.m}月${bd}日の誕生日以降、数秘の月サイクルは${m.endN}に変わります。`}
- return {title:r.title,body,action:r.action};
+ const scene=livedScenes[m.p],previous=livedScenes[m.pBefore],monthIndex=m.m-1;
+ const intro=scene.setting;
+ // 九星の節入りは内部で判定。本文には暦の説明を繰り返さず、必要な月だけ変化を自然に表す。
+ const turn=m.p!==m.pBefore ? [
+  `月の初めは${palaceScenes[m.pBefore].need}を確かめ、季節が進んだら${palaceScenes[m.p].need}に目を向けて。`,
+  `前半の${palaceScenes[m.pBefore].need}への意識を、次の${palaceScenes[m.p].need}へつなげていきましょう。`,
+  `月の入り口では${palaceScenes[m.pBefore].need}を整え、その先は${palaceScenes[m.p].need}を大切に。`
+ ][monthIndex%3] : '';
+ let body=intro+movementLinks[m.n]+personalModes[d.star][monthIndex%3];
+ // 文章が長い場合は節入りの解説より本人への助言を優先する。
+ if(body.length<115 && turn)body+=turn;
+ if(m.n!==m.endN){const bd=Number(d.date.slice(8));body+=`${m.m}月${bd}日ごろからは、取り組むことを一度見直してみてください。`;}
+ // 行動は宮の場面を主軸とし、数秘の課題が逆方向の場合は数秘の小さな一歩を選択。
+ const action=(m.n===1||m.n===5||m.n===9)?cycleIntent[m.n].act:palaceScenes[m.p].action;
+ return {title:scene.head,body,action};
 }
 
 function render(d){
@@ -462,6 +494,6 @@ function render(d){
  fill('うめこの脳みそと、ゆきこの脳みそ。ふたつの視点が合わさった、みろく流の季節のメッセージ。',62,1706,18,'#82766e');
  fill('次の季節のメッセージをご希望の方は、InstagramのDMから直接ご連絡ください。',62,1734,18,'#82766e');
 }
-async function run(){const date=$('birthday').value,name=$('person').value.trim()||'お客さま';if(!date){alert('生年月日を入力してな');return}const ov=Number($('override').value)||0,d=makeData(name,date,ov);if(d.h.uncertain&&!ov){$('alert').textContent='立春前後の生まれ（2月3日・4日）は出生時刻による確認が必要です。本命星を資料で確認し、手動選択してください。';$('alert').classList.remove('hidden');$('result').classList.add('hidden');return}$('alert').classList.add('hidden');$('check').textContent=`文章生成：九星の年盤・月盤を主役に、数秘の年・月サイクルを補助に使用。節入り前後・誕生日の切替を文章に反映。｜管理用検算（印刷画像には出ません／2027年節入り時刻は国立天文台の暦要項に準拠）｜本命星：${['','一白','二黒','三碧','四緑','五黄','六白','七赤','八白','九紫'][d.star]}｜年運 ${d.year} → ${d.yearEnd}｜1〜3月 ${d.months.map(m=>m.n+(m.n!==m.endN?'→'+m.endN:'')).join('・')}｜年盤 2/4 10:46前 ${d.pBeforeYear}→以降 ${d.p}｜月盤 ${d.months.map(m=>`${m.switchLabel} ${m.pBefore}→${m.p}`).join('／')}`;await loadAssets();render(d);$('result').classList.remove('hidden');$('saveArea').classList.add('hidden');$('result').scrollIntoView({behavior:'smooth'});}
+async function run(){const date=$('birthday').value,name=$('person').value.trim()||'お客さま';if(!date){alert('生年月日を入力してな');return}const ov=Number($('override').value)||0,d=makeData(name,date,ov);if(d.h.uncertain&&!ov){$('alert').textContent='立春前後の生まれ（2月3日・4日）は出生時刻による確認が必要です。本命星を資料で確認し、手動選択してください。';$('alert').classList.remove('hidden');$('result').classList.add('hidden');return}$('alert').classList.add('hidden');$('check').textContent=`文章生成：九星の宮を生活場面に、数秘を意識と行動に反映。節入り前後・誕生日の切替を文章に反映。｜管理用検算（印刷画像には出ません／2027年節入り時刻は国立天文台の暦要項に準拠）｜本命星：${['','一白','二黒','三碧','四緑','五黄','六白','七赤','八白','九紫'][d.star]}｜年運 ${d.year} → ${d.yearEnd}｜1〜3月 ${d.months.map(m=>m.n+(m.n!==m.endN?'→'+m.endN:'')).join('・')}｜年盤 2/4 10:46前 ${d.pBeforeYear}→以降 ${d.p}｜月盤 ${d.months.map(m=>`${m.switchLabel} ${m.pBefore}→${m.p}`).join('／')}`;await loadAssets();render(d);$('result').classList.remove('hidden');$('saveArea').classList.add('hidden');$('result').scrollIntoView({behavior:'smooth'});}
 $('generate').addEventListener('click',run);$('sample').addEventListener('click',()=>{$('person').value='うめこ';$('birthday').value='1976-10-15';$('override').value='';run()});$('save').addEventListener('click',()=>{let url=canvas.toDataURL('image/png');$('saveImg').src=url;$('saveArea').classList.remove('hidden');const a=document.createElement('a');a.href=url;a.download='みろく流_2027年運気だより.PNG';document.body.appendChild(a);a.click();a.remove();});
 </script></body></html>
