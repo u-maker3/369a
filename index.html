@@ -1,6 +1,6 @@
 <!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f5ede7"><title>みろく流｜2027年 運気だより</title><style>
 *{box-sizing:border-box}body{margin:0;background:#f7f1ec;color:#403732;font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sans-serif}.wrap{max-width:720px;margin:auto;padding:18px}.panel{background:white;border-radius:19px;padding:20px;box-shadow:0 4px 24px #70523a14;margin-bottom:16px}h1{font-size:23px;margin:0 0 8px}p{line-height:1.65}.sub{color:#81746e;font-size:13px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}.fields label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}input,select{width:100%;font-size:16px;padding:12px;border:1px solid #d8c9c0;border-radius:10px;background:white}button{border:0;border-radius:99px;padding:13px 19px;background:#776b54;color:white;font-size:15px;font-weight:700;cursor:pointer}button.secondary{background:#f2e7dc;color:#54473d}.actions{display:flex;flex-wrap:wrap;gap:9px}.hidden{display:none!important}.alert{padding:11px;border-radius:10px;background:#fff2d8;font-size:13px;margin:10px 0}.preview{width:100%;background:#eee2d8;border-radius:14px;padding:12px;text-align:center}.preview canvas{width:100%;height:auto;max-width:595px;box-shadow:0 4px 20px #382d2433;background:white}.check{font-size:13px;background:#f7f3ee;border-radius:12px;padding:12px;line-height:1.8;margin-bottom:12px}.tip{font-size:13px;color:#766b63}#saveImg{display:block;max-width:100%;margin:10px auto;border:1px solid #eaded5;border-radius:8px} @media(max-width:520px){.fields{grid-template-columns:1fr}.wrap{padding:12px}.panel{padding:15px}}
-</style></head><body><main class="wrap"><section class="panel"><h1>🌸 みろく流｜運気だより製造機</h1><p class="sub">2027年の年間テーマと、1〜3月の季節のメッセージ。鑑定書には数字も方位も載せません。</p><div class="fields"><div><label for="person">お名前</label><input id="person" placeholder="例：うめこ"></div><div><label for="birthday">生年月日</label><input id="birthday" type="date"></div><div><label for="override">本命星（通常は自動）</label><select id="override"><option value="">自動判定</option><option value="1">一白水星</option><option value="2">二黒土星</option><option value="3">三碧木星</option><option value="4">四緑木星</option><option value="5">五黄土星</option><option value="6">六白金星</option><option value="7">七赤金星</option><option value="8">八白土星</option><option value="9">九紫火星</option></select></div></div><div class="actions"><button id="generate">鑑定書を作成</button><button id="sample" class="secondary">うめこで検算</button></div><div id="alert" class="alert hidden"></div></section><section id="result" class="panel hidden"><h1>完成プレビュー</h1><div id="check" class="check"></div><div class="preview"><canvas id="paper" width="2480" height="3508"></canvas></div><div class="actions" style="margin-top:15px"><button id="save">鑑定書をPNGで保存</button></div><p class="tip">iPhoneで画像が開いたら長押しして「写真に保存」。画像はA4比率の高解像度PNGです。QRコードは印刷後に読み取り確認してな。</p><div id="saveArea" class="hidden"><p class="tip">保存できない場合は下の画像を長押しして保存してな。</p><img id="saveImg" alt="保存用の鑑定書"></div></section></main><script>
+</style></head><body><main class="wrap"><section class="panel"><h1>🌸 みろく流｜運気だより製造機【個別融合版】</h1><p class="sub">2027年の年間テーマと、1〜3月の季節のメッセージ。鑑定書には数字も方位も載せません。</p><div class="fields"><div><label for="person">お名前</label><input id="person" placeholder="例：うめこ"></div><div><label for="birthday">生年月日</label><input id="birthday" type="date"></div><div><label for="override">本命星（通常は自動）</label><select id="override"><option value="">自動判定</option><option value="1">一白水星</option><option value="2">二黒土星</option><option value="3">三碧木星</option><option value="4">四緑木星</option><option value="5">五黄土星</option><option value="6">六白金星</option><option value="7">七赤金星</option><option value="8">八白土星</option><option value="9">九紫火星</option></select></div></div><div class="actions"><button id="generate">鑑定書を作成</button><button id="sample" class="secondary">うめこで検算</button></div><div id="alert" class="alert hidden"></div></section><section id="result" class="panel hidden"><h1>完成プレビュー</h1><div id="check" class="check"></div><div class="preview"><canvas id="paper" width="2480" height="3508"></canvas></div><div class="actions" style="margin-top:15px"><button id="save">鑑定書をPNGで保存</button></div><p class="tip">iPhoneで画像が開いたら長押しして「写真に保存」。画像はA4比率の高解像度PNGです。QRコードは印刷後に読み取り確認してな。</p><div id="saveArea" class="hidden"><p class="tip">保存できない場合は下の画像を長押しして保存してな。</p><img id="saveImg" alt="保存用の鑑定書"></div></section></main><script>
 'use strict';
 const $=id=>document.getElementById(id);
 const themes={1:{t:'新しい一歩を大切に',a:'自分の気持ちに耳を傾けながら、できることから始めてみましょう。',b:'小さな挑戦をひとつ選んでみて。'},2:{t:'ゆっくり育てる時間',a:'人とのつながりや、続けてきたことを丁寧に育てる時間です。',b:'大切な人との会話を楽しんで。'},3:{t:'あなたらしさを表現して',a:'好きなことや心に浮かんだ思いを、少しずつ外へ届けてみましょう。',b:'嬉しかったことを言葉にしてみて。'},4:{t:'足元を整える季節',a:'暮らしや予定を見直すことで、安心して進める土台が育ちます。',b:'毎日の習慣をひとつ整えて。'},5:{t:'変化を味方に',a:'いつもと違う選択に、思いがけない気づきがあるかもしれません。',b:'気になっていたことを試してみて。'},6:{t:'大切なものを見つめて',a:'人や暮らしを思いやる時間を、自分自身にも向けてみましょう。',b:'自分をいたわる時間も忘れずに。'},7:{t:'心の声を聞くとき',a:'答えを急がず、学びや静かな時間から自分の気持ちを確かめて。',b:'ひとりで落ち着ける時間をつくって。'},8:{t:'積み重ねを形に',a:'続けてきた努力を振り返り、現実の形につなげていきましょう。',b:'これまでの成果を書き出してみて。'},9:{t:'心に余白をつくる',a:'今の自分に合わなくなったものを整理して、次の季節を迎える準備を。',b:'後回しのことをひとつ片づけて。'},11:{t:'小さな気づきを大切に',a:'ふと感じたことを見過ごさず、心に響くものを丁寧に確かめてみて。',b:'心が動いた瞬間をメモしてみて。'},22:{t:'思いを形に育てる',a:'大切にしてきた理想を、無理のない計画へと落とし込む時間です。',b:'目標をひとつ具体的にしてみて。'}};
@@ -125,18 +125,43 @@ const numModifiers={
  11:{angle:'心の小さなサイン',sentence:'ふと感じたことを見過ごさず、メモに残してみて。'},
  22:{angle:'思いを形にする段取り',sentence:'大きな願いも、今日できる小さな行動に分けてみましょう。'}
 };
+// v20261118-unique: 宮の象意を舞台、本命星を個別の視点、数秘を月の動きとして融合。
+// 宮だけが一致しても、別の本命星・数秘なら見出し／本文／行動が変わる。
+const starMonthly={
+ 1:{lead:'自分の本音を大切に',approach:'気持ちを整理する時間を持ちながら',care:'急いで答えを出さなくても大丈夫',action:'今の気持ちを短く書く'},
+ 2:{lead:'暮らしの安心を守り',approach:'身近な人や日々の暮らしを丁寧に見渡しながら',care:'自分の負担も忘れずに',action:'暮らしの負担を一つ減らす'},
+ 3:{lead:'好奇心を生かして',approach:'小さな挑戦を楽しみながら',care:'勢いだけで決めずに',action:'気になることを一つ試す'},
+ 4:{lead:'信頼をゆっくり育て',approach:'周りと気持ちを確かめ合いながら',care:'相手に合わせすぎずに',action:'大切な人に自分の思いを伝える'},
+ 5:{lead:'自分の選択を信じて',approach:'今の優先順位を見直しながら',care:'何でも一度に抱え込まずに',action:'大切にしたい順番を決める'},
+ 6:{lead:'理想を無理なく形に',approach:'責任を分け合える方法を探しながら',care:'完璧を目指しすぎずに',action:'頼れることを一つ相談する'},
+ 7:{lead:'心が喜ぶ時間も忘れず',approach:'人との会話や楽しさを味わいながら',care:'気遣いで疲れすぎないように',action:'好きなことを誰かと分かち合う'},
+ 8:{lead:'経験を次の力に変え',approach:'これまで積み重ねたことを振り返りながら',care:'変化を急がずに',action:'続けたいことと変えたいことを整理する'},
+ 9:{lead:'小さな気づきを言葉に',approach:'学びや発見を自分なりに整理しながら',care:'周囲の評価に振り回されずに',action:'最近の発見を一つ書き留める'}
+};
+const numMonthly={
+ 1:{head:'自分から一歩を選ぶ',line:'今月は、自分で決めた小さな一歩を大切にしてみましょう。',action:'自分から始めたいことを一つ決める'},
+ 2:{head:'人との歩幅を確かめる',line:'相手の気持ちを聞きながら、自分の希望も丁寧に伝えてみて。',action:'話を聞きたい人と時間をつくる'},
+ 3:{head:'楽しさを広げる',line:'心が弾むことを、日常に少しだけ増やしてみましょう。',action:'うれしい出来事を一つ伝える'},
+ 4:{head:'続けられる形を整える',line:'頑張りすぎない手順を決めることが、安心につながります。',action:'続けたい習慣を一つ決める'},
+ 5:{head:'新しいやり方を試す',line:'いつもと違う方法にも目を向け、自分に合うか確かめてみて。',action:'いつもと違う方法を一つ試す'},
+ 6:{head:'大切なものをいたわる',line:'周りの人を思うのと同じくらい、自分にもやさしくしてあげて。',action:'自分をいたわる予定を一つ入れる'},
+ 7:{head:'心の声を深く聞く',line:'答えを急がず、納得できるまで考える時間をつくりましょう。',action:'一人で考える時間を確保する'},
+ 8:{head:'積み重ねを確かめる',line:'これまでの努力を振り返り、今の手応えを見つけてみて。',action:'小さな成果を一つ書き出す'},
+ 9:{head:'次のために整理する',line:'今の自分に合わなくなったものを、感謝とともに整理しましょう。',action:'手放したいことを一つ選ぶ'},
+ 11:{head:'直感を丁寧に拾う',line:'ふと心が動いたことを、急いで結論にせず確かめてみて。',action:'心に残ったことをメモする'},
+ 22:{head:'願いを具体的にする',line:'大きな思いも、今日できる小さな段取りに分けてみましょう。',action:'目標を三つの手順に分ける'}
+};
 function fusionTitle(num,star,palace,monthly=false){
- if(monthly)return palaceReadings[palace].title;
+ if(monthly)return `${palaceReadings[palace].title} ― ${numMonthly[num].head}`;
  return `${starScenes[star].subject}を育て、${flowScenes[num].title}`;
 }
 function fusionMessage(num,star,palace,monthly=false){
- if(monthly){const p=palaceReadings[palace],n=numModifiers[num];return `${p.intro}${p.detail}${n.sentence}`;}
+ if(monthly){const p=palaceReadings[palace],s=starMonthly[star],n=numMonthly[num];return `${p.intro}${s.approach}、${p.detail}${n.line}${s.care}。`;}
  const a=starScenes[star];return `この一年は「${flowScenes[num].title}」が一つのテーマ。${a.lens}、${stageScenes[palace].verb}ことを心がけてみましょう。${a.care}、自分の歩幅で進んで大丈夫です。`;
 }
 function fusionAction(num,star,palace){
- const p=palaceReadings[palace];
- // 回座宮を主役にし、数秘によって行動の候補を変える。
- return p.actions[(num===11?1:num===22?2:(num-1)%3)]+'。';
+ const p=palaceReadings[palace],s=starMonthly[star],n=numMonthly[num];
+ return `${n.action}。${s.action}。`;
 }
 const closingByStar={
  1:'自分の気持ちを大切にすることも、前に進む力になります。次の季節も、心の声を忘れずに。',
