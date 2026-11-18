@@ -149,6 +149,40 @@ const closingByStar={
  8:'積み重ねた時間は、あなたの力になっています。変わることも守ることも、自分らしく選んでね。',
  9:'心に灯った小さな気づきを、これからも大切に。次の季節の景色を楽しみにしていてね。'
 };
+const sumDigits=s=>[...String(s)].reduce((a,c)=>a+(Number(c)||0),0);
+function reduce(n){while(n>9&&n!==11&&n!==22)n=sumDigits(n);return n}
+function root(n){while(n>9)n=sumDigits(n);return n}
+function starFromYear(y){return ((11-root(y)-1+900)%9)+1}
+function honmei(date){let [y,m,d]=date.split('-').map(Number),uncertain=false;if(m===1||(m===2&&d<=2))y--;else if(m===2&&(d===3||d===4)){uncertain=true;y--}return {star:starFromYear(y),uncertain}}
+function startAt(date,year,month,day){const [by,bm,bd]=date.split('-').map(Number);return {y:year-((month<bm||(month===bm&&day<bd))?1:0),m:bm,d:bd}}
+function base(s){return sumDigits(`${s.y}${String(s.m).padStart(2,'0')}${String(s.d).padStart(2,'0')}`)}
+function yearN(s){return reduce(base(s))}function monthN(s,m){return reduce(base(s)+m)}
+function pos(star,center){return palaces[(star-center+9)%9]}
+function makeData(name,date,override){const h=honmei(date),star=override||h.star,annualStart=startAt(date,2027,1,1),annualEnd=startAt(date,2027,12,31);const months=[1,2,3].map((m,i)=>{const start=startAt(date,2027,m,1),end=startAt(date,2027,m,new Date(2027,m,0).getDate());return {m,n:monthN(start,m),endN:monthN(end,m),p:pos(star,[6,5,4][i])}});return {name,date,h,star,annualStart,annualEnd,year:yearN(annualStart),yearEnd:yearN(annualEnd),p:pos(star,9),months}}
+const canvas=$('paper'),ctx=canvas.getContext('2d');const W=1240,H=1754;
+function font(size,bold=false){ctx.font=`${bold?'700':'400'} ${size}px -apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sans-serif`}
+function fill(text,x,y,size=28,color='#403732',bold=false){ctx.fillStyle=color;font(size,bold);ctx.fillText(text,x,y)}
+function wrap(text,x,y,maxWidth,size=28,line=43,color='#403732',bold=false){ctx.fillStyle=color;font(size,bold);let cur='',yy=y;for(const ch of text){if(ctx.measureText(cur+ch).width>maxWidth&&cur){ctx.fillText(cur,x,yy);yy+=line;cur=''}cur+=ch}if(cur)ctx.fillText(cur,x,yy);return yy+line}
+function rounded(x,y,w,h,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill()}
+const assetNames=['YUKIKO.PNG','MIROKUMAN.PNG','UMEKO.PNG','QR_YUKIKO.jpg','QR_369.jpg','QR_UMEKO.jpg'];const images={};async function loadAssets(){await Promise.all(assetNames.map(n=>new Promise(resolve=>{let img=new Image();img.onload=()=>{images[n]=img;resolve()};img.onerror=resolve;img.src=n})));}
+function drawContain(img,x,y,w,h){if(!img)return;let r=Math.min(w/img.naturalWidth,h/img.naturalHeight),iw=img.naturalWidth*r,ih=img.naturalHeight*r;ctx.drawImage(img,x+(w-iw)/2,y+(h-ih)/2,iw,ih)}
+function drawQR(img,x,y,size){if(!img)return;
+// Preserve the complete QR pattern, including all three corner markers.
+// The supplied Instagram screenshots have the QR at approximately x=294..886, y=116..703.
+// Crop a square around the full pattern and retain a white quiet zone.
+const sx=276, sy=98, side=630;
+ctx.fillStyle='#ffffff';ctx.fillRect(x-12,y-12,size+24,size+24);
+ctx.save();ctx.imageSmoothingEnabled=false;
+ctx.drawImage(img,sx,sy,side,side,x,y,size,size);
+ctx.restore();
+}
+
+function fitHeading(text,x,y,maxWidth,size){font(size,true);while(size>17&&ctx.measureText(text).width>maxWidth){size--;font(size,true)}fill(text,x,y,size,'#403732',true)}
+function fitWrap(text,x,y,maxWidth,size,line,maxLines=4,color='#403732',bold=false){
+ let lines=[],cur='';font(size,bold);for(const ch of String(text)){if(ctx.measureText(cur+ch).width>maxWidth&&cur){lines.push(cur);cur=''}cur+=ch}if(cur)lines.push(cur);
+ while(lines.length>maxLines&&size>17){size--;font(size,bold);lines=[];cur='';for(const ch of String(text)){if(ctx.measureText(cur+ch).width>maxWidth&&cur){lines.push(cur);cur=''}cur+=ch}if(cur)lines.push(cur)}
+ lines.slice(0,maxLines).forEach((t,i)=>fill(t,x,y+i*line,size,color,bold));return lines.length;
+}
 function render(d){
  ctx.setTransform(2,0,0,2,0,0);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
  fill('みろく流  季節の運気だより',80,91,25,'#90715b',true);
