@@ -329,28 +329,44 @@ function fitWrap(text,x,y,maxWidth,size,line,maxLines=4,color='#403732',bold=fal
  while(lines.length>maxLines&&size>17){size--;font(size,bold);lines=[];cur='';for(const ch of String(text)){if(ctx.measureText(cur+ch).width>maxWidth&&cur){lines.push(cur);cur=''}cur+=ch}if(cur)lines.push(cur)}
  lines.slice(0,maxLines).forEach((t,i)=>fill(t,x,y+i*line,size,color,bold));return lines.length;
 }
+// 2026-11-18: 鑑定文章は数秘を主軸、九星を個性と時期の補助として合成。
+// 文面を乱数や日付で選ばず、同じ判定結果には同じ意味を返す。
+function annualReading(d){
+ const n=themes[d.year],st=starMonthly[d.star];
+ const title=n.t;
+ let body=`この一年は「${title}」を大切にする時期です。${n.a}${st.approach}、自分らしい進め方を探してみましょう。`;
+ if(d.year!==d.yearEnd){const [,bm,bd]=d.date.split('-').map(Number);body+=`${bm}月${bd}日の誕生日からは、年サイクルが切り替わり「${themes[d.yearEnd].t}」が新たなテーマになります。`;}
+ body+=`九星気学では立春を境に年の巡りが変わります。`;
+ return {title,body};
+}
+function monthReading(m,d){
+ const n=numMonthly[m.n],st=starMonthly[d.star],scene=palaceReadings[m.p];
+ const title=n.head;
+ let body=`${n.line}${st.approach}、${scene.detail} ${st.care}。`;
+ // 誕生日で数秘が変わる月は、後半の解釈を明記。
+ if(m.n!==m.endN){const bd=Number(d.date.slice(8));body+=`${m.m}月${bd}日からは月サイクル${m.endN}となり、「${numMonthly[m.endN].head}」という視点も加わります。`;}
+ // 節入りの前後で九星の宮が変わることを明記。
+ if(m.pBefore!==m.p){body+=`九星の月の巡りは${m.switchLabel}に切り替わります。節入り前後で過ごし方を見直してみましょう。`;}
+ return {title,body,action:n.action};
+}
 function render(d){
  ctx.setTransform(2,0,0,2,0,0);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
  fill('みろく流  季節の運気だより',80,91,25,'#90715b',true);
  fitHeading(`${d.name}さんへのメッセージ`,80,145,1080,43);
  fill(`${d.name} 様   ｜   1月・2月・3月号`,82,184,22,'#786d65');
  fill('2027年のテーマ',70,246,27,'#92735e',true);
- fitHeading(`「${fusionTitle(d.year,d.star,d.p)}」`,70,295,1080,31);
- let annual=fusionMessage(d.year,d.star,d.p);
- if(d.year!==d.yearEnd){const [,bm,bd]=d.date.split('-').map(Number);annual+=` ${bm}月${bd}日の誕生日からは「${themes[d.yearEnd].t}」という新しいテーマに移ります。`;}
- fitWrap(annual,72,340,1090,25,37,4);
+ const yr=annualReading(d);
+ fitHeading(`「${yr.title}」`,70,295,1080,31);
+ fitWrap(yr.body,72,340,1090,25,37,4);
  ctx.strokeStyle='#eaded3';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(70,500);ctx.lineTo(1170,500);ctx.stroke();
  const monthStarts=[522,789,1056];
  d.months.forEach((m,i)=>{
-  const y=monthStarts[i],p=palaceWords[m.p];
+  const y=monthStarts[i],reading=monthReading(m,d);
   ctx.strokeStyle='#ded8d2';ctx.lineWidth=2;ctx.strokeRect(60,y,1120,250);
   fill(`${m.m}月`,84,y+51,36,'#775e4d',true);
-  fitHeading(fusionTitle(m.n,d.star,m.p,true,m.m),214,y+51,930,29);
-  let msg=fusionMessage(m.n,d.star,m.p,true,m.m);
-  if(m.n!==m.endN){const bd=Number(d.date.slice(8));msg+=` ${bd}日からは次の流れも重なります。`;}
-  fitWrap(msg,86,y+97,1060,23,32,4);
-  const action=fusionAction(m.n,d.star,m.p,m.m);
-  fitWrap(`今月の一歩：${action}`,86,y+224,1050,22,28,1,'#72806a',true);
+  fitHeading(reading.title,214,y+51,930,29);
+  fitWrap(reading.body,86,y+97,1060,22,31,4);
+  fitWrap(`今月の一歩：${reading.action}`,86,y+224,1050,22,28,1,'#72806a',true);
  });
  const closing=closingByStar[d.star];
  fill('みろくから最後にひと言',85,1365,26,'#8e685b',true);
@@ -362,6 +378,6 @@ function render(d){
  fill('うめこの脳みそと、ゆきこの脳みそ。ふたつの視点が合わさった、みろく流の季節のメッセージ。',62,1706,18,'#82766e');
  fill('次の季節のメッセージをご希望の方は、InstagramのDMから直接ご連絡ください。',62,1734,18,'#82766e');
 }
-async function run(){const date=$('birthday').value,name=$('person').value.trim()||'お客さま';if(!date){alert('生年月日を入力してな');return}const ov=Number($('override').value)||0,d=makeData(name,date,ov);if(d.h.uncertain&&!ov){$('alert').textContent='立春前後の生まれ（2月3日・4日）は出生時刻による確認が必要です。本命星を資料で確認し、手動選択してください。';$('alert').classList.remove('hidden');$('result').classList.add('hidden');return}$('alert').classList.add('hidden');$('check').textContent=`管理用検算（印刷画像には出ません／2027年節入り時刻は国立天文台の暦要項に準拠）｜本命星：${['','一白','二黒','三碧','四緑','五黄','六白','七赤','八白','九紫'][d.star]}｜年運 ${d.year} → ${d.yearEnd}｜1〜3月 ${d.months.map(m=>m.n+(m.n!==m.endN?'→'+m.endN:'')).join('・')}｜年盤 2/4 10:46前 ${d.pBeforeYear}→以降 ${d.p}｜月盤 ${d.months.map(m=>`${m.switchLabel} ${m.pBefore}→${m.p}`).join('／')}`;await loadAssets();render(d);$('result').classList.remove('hidden');$('saveArea').classList.add('hidden');$('result').scrollIntoView({behavior:'smooth'});}
+async function run(){const date=$('birthday').value,name=$('person').value.trim()||'お客さま';if(!date){alert('生年月日を入力してな');return}const ov=Number($('override').value)||0,d=makeData(name,date,ov);if(d.h.uncertain&&!ov){$('alert').textContent='立春前後の生まれ（2月3日・4日）は出生時刻による確認が必要です。本命星を資料で確認し、手動選択してください。';$('alert').classList.remove('hidden');$('result').classList.add('hidden');return}$('alert').classList.add('hidden');$('check').textContent=`文章生成：数秘を主軸／九星を補足。節入り前後・誕生日の切替を文章に反映。｜管理用検算（印刷画像には出ません／2027年節入り時刻は国立天文台の暦要項に準拠）｜本命星：${['','一白','二黒','三碧','四緑','五黄','六白','七赤','八白','九紫'][d.star]}｜年運 ${d.year} → ${d.yearEnd}｜1〜3月 ${d.months.map(m=>m.n+(m.n!==m.endN?'→'+m.endN:'')).join('・')}｜年盤 2/4 10:46前 ${d.pBeforeYear}→以降 ${d.p}｜月盤 ${d.months.map(m=>`${m.switchLabel} ${m.pBefore}→${m.p}`).join('／')}`;await loadAssets();render(d);$('result').classList.remove('hidden');$('saveArea').classList.add('hidden');$('result').scrollIntoView({behavior:'smooth'});}
 $('generate').addEventListener('click',run);$('sample').addEventListener('click',()=>{$('person').value='うめこ';$('birthday').value='1976-10-15';$('override').value='';run()});$('save').addEventListener('click',()=>{let url=canvas.toDataURL('image/png');$('saveImg').src=url;$('saveArea').classList.remove('hidden');const a=document.createElement('a');a.href=url;a.download='みろく流_2027年運気だより.PNG';document.body.appendChild(a);a.click();a.remove();});
 </script></body></html>
