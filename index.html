@@ -224,20 +224,48 @@ const cycleSteps={
  11:['ふと心が動いたことを、見過ごさずに確かめてみましょう。','心に残ったことをメモする'],
  22:['大切な願いを、今日できる段取りに分けてみましょう。','目標の最初の一歩を書き出す']
 };
-function naturalVariant(star,num,palace){return (star*7+num*3+['C','NW','W','NE','S','N','SW','E','SE'].indexOf(palace))%3;}
-function fusionTitle(num,star,palace,monthly=false){
- if(monthly)return naturalScenes[palace].heads[naturalVariant(star,num,palace)];
+// v20261118-seasonal-v2: 月ごとに「宮の場面×本命星の視点×数秘の課題」を編集。
+// 本命星の同一文を毎月貼り付けず、月別の行動も宮と本命星に応じて変える。
+const monthlySceneActions={
+ C:['今月やらないことを一つ決める','今の優先順位を三つ書き出す','一人で考える時間を予定に入れる'],
+ NW:['引き受けている役割を一つ見直す','頼める仕事や用事を一つ探す','大切な目標を一つに絞る'],
+ W:['最近うれしかったことを誰かに伝える','好きなことを楽しむ時間を決める','気の合う人に近況を伝える'],
+ NE:['続けたい習慣と変えたい習慣を書き分ける','使っていないものを一つ整理する','今の暮らしに合うやり方を一つ試す'],
+ S:['最近の気づきを三行で書く','学んだことを誰かに伝える','気になることを一つ調べる'],
+ N:['休む時間を先に予定に入れる','気になっていることを紙に書き出す','無理のない予定に一つ組み直す'],
+ SW:['朝か夜の習慣を一つ整える','暮らしの負担を一つ減らす','身近な場所を一か所整える'],
+ E:['温めていたアイデアを一つ試す','気になることの最初の一歩を決める','小さな挑戦を一つ予定に入れる'],
+ SE:['大切な人とゆっくり話す時間をつくる','伝えそびれた感謝を一つ届ける','気になる人に近況を尋ねる']
+};
+const starSceneNotes={
+ 1:['気持ちを整理してから動くと、自分の答えを選びやすくなります。','周りの声を聞いたあと、自分がどう感じたかも確かめてみてください。','急いで言葉にしなくても、静かに考える時間が助けになります。'],
+ 2:['周りを支えるだけでなく、自分の負担にも目を向けてみてください。','いつもの暮らしに無理がないか、少し確かめてみましょう。','小さな工夫を重ねることが、安心につながります。'],
+ 3:['気になることに触れてみると、新しい発見があるかもしれません。','最初から完成を目指さず、試してみることを大切に。','思いついたことを小さく形にするのもよい方法です。'],
+ 4:['人の話を聞くときも、自分の希望を忘れないでください。','丁寧に言葉を交わすことが、安心できる関係を育てます。','周囲との調和を大切にしつつ、自分のペースも守りましょう。'],
+ 5:['あれこれ抱え込まず、今必要なことを選ぶと気持ちが整います。','周りの期待だけでなく、自分の納得も大切にしてください。','すべてを同時に進めず、順番をつけることから始めましょう。'],
+ 6:['責任感を生かすためにも、一人で抱え込まない工夫が大切です。','理想に近づくには、少し力を抜く選択も役立ちます。','丁寧に取り組む姿勢はそのままに、助けを借りる余地も残して。'],
+ 7:['楽しいと感じる時間を、自分のためにも取ってみてください。','人と笑い合うことが、気持ちを整えるきっかけになります。','気を遣いすぎず、自分が心地よい距離感を選びましょう。'],
+ 8:['これまでの経験を、今の選択に生かしてみてください。','積み重ねたことを振り返ると、次に必要なことが見えてきます。','変えることも守ることも、自分のペースで選んで大丈夫です。'],
+ 9:['感じたことを言葉にすると、考えが整理しやすくなります。','学んだことの中に、次につながるヒントがありそうです。','周囲の評価より、自分が納得できる表現を大切にしてください。']
+};
+function naturalVariant(star,num,palace,month=0){return (star*7+num*3+['C','NW','W','NE','S','N','SW','E','SE'].indexOf(palace)+month)%3;}
+function fusionTitle(num,star,palace,monthly=false,month=0){
+ if(monthly)return naturalScenes[palace].heads[naturalVariant(star,num,palace,month)];
  return `${starScenes[star].subject}を育て、${flowScenes[num].title}`;
 }
-function fusionMessage(num,star,palace,monthly=false){
+function fusionMessage(num,star,palace,monthly=false,month=0){
  if(monthly){
-  const v=naturalVariant(star,num,palace),scene=naturalScenes[palace],advice=sceneAdvice[palace];
-  return `${scene.open[v]}${advice[(v+star)%2]}${starGuidance[star]}${cycleSteps[num][0]}`;
+  const v=naturalVariant(star,num,palace,month),scene=naturalScenes[palace];
+  // 宮の導入→本命星の向き合い方→数秘の動き。各月で同一の本命星文を繰り返さない。
+  return `${scene.open[v]}${starSceneNotes[star][(v+month)%3]}${cycleFocus[num].sentence}`;
  }
  const a=starScenes[star];
  return `この一年は「${flowScenes[num].title}」が大切なテーマです。${a.lens}、${stageScenes[palace].verb}ことを意識してみましょう。${a.care}、自分の歩幅で進んで大丈夫です。`;
 }
-function fusionAction(num,star,palace){return cycleSteps[num][1];}
+function fusionAction(num,star,palace,month=0){
+ const choices=monthlySceneActions[palace];
+ return choices[(star+num+month)%choices.length];
+}
 const closingByStar={
  1:'考える時間も大事やで。自分の気持ち、ちゃんと聞いたってな。',
  2:'人のことも大事。でも自分のこと、後回しにしたらあかんで。',
@@ -317,11 +345,11 @@ function render(d){
   const y=monthStarts[i],p=palaceWords[m.p];
   ctx.strokeStyle='#ded8d2';ctx.lineWidth=2;ctx.strokeRect(60,y,1120,250);
   fill(`${m.m}月`,84,y+51,36,'#775e4d',true);
-  fitHeading(fusionTitle(m.n,d.star,m.p,true),214,y+51,930,29);
-  let msg=fusionMessage(m.n,d.star,m.p,true);
+  fitHeading(fusionTitle(m.n,d.star,m.p,true,m.m),214,y+51,930,29);
+  let msg=fusionMessage(m.n,d.star,m.p,true,m.m);
   if(m.n!==m.endN){const bd=Number(d.date.slice(8));msg+=` ${bd}日からは次の流れも重なります。`;}
   fitWrap(msg,86,y+97,1060,23,32,4);
-  const action=fusionAction(m.n,d.star,m.p);
+  const action=fusionAction(m.n,d.star,m.p,m.m);
   fitWrap(`今月の一歩：${action}`,86,y+224,1050,22,28,1,'#72806a',true);
  });
  const closing=closingByStar[d.star];
