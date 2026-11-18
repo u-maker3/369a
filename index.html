@@ -326,8 +326,8 @@ ctx.restore();
 function fitHeading(text,x,y,maxWidth,size){font(size,true);while(size>17&&ctx.measureText(text).width>maxWidth){size--;font(size,true)}fill(text,x,y,size,'#403732',true)}
 function fitWrap(text,x,y,maxWidth,size,line,maxLines=4,color='#403732',bold=false){
  let lines=[],cur='';font(size,bold);for(const ch of String(text)){if(ctx.measureText(cur+ch).width>maxWidth&&cur){lines.push(cur);cur=''}cur+=ch}if(cur)lines.push(cur);
- while(lines.length>maxLines&&size>17){size--;font(size,bold);lines=[];cur='';for(const ch of String(text)){if(ctx.measureText(cur+ch).width>maxWidth&&cur){lines.push(cur);cur=''}cur+=ch}if(cur)lines.push(cur)}
- lines.slice(0,maxLines).forEach((t,i)=>fill(t,x,y+i*line,size,color,bold));return lines.length;
+ while(lines.length>maxLines&&size>16){size--;font(size,bold);lines=[];cur='';for(const ch of String(text)){if(ctx.measureText(cur+ch).width>maxWidth&&cur){lines.push(cur);cur=''}cur+=ch}if(cur)lines.push(cur)}
+ if(lines.length>maxLines){lines=lines.slice(0,maxLines);let last=lines[maxLines-1];while(ctx.measureText(last+'…').width>maxWidth&&last.length)last=last.slice(0,-1);lines[maxLines-1]=last+'…';}lines.forEach((t,i)=>fill(t,x,y+i*line,size,color,bold));return lines.length;
 }
 // 2026-11-18: 九星の回座宮を運気の舞台に、数秘サイクルを独立したもう一つの軸として統合。
 // 計算と画像描画・画像素材は変更しない。
@@ -337,21 +337,24 @@ const palaceAnnual={
 const palaceAnnualAdvice={
  C:'自分の負担と優先順位を整理すると、中心に立つときにも落ち着いて判断できます。',NW:'期待される役割をすべて抱え込まず、引き受ける範囲を自分で決めましょう。',W:'会話や楽しみを大切にしながら、これまでの努力を分かち合ってみましょう。',NE:'慣れたやり方を見直し、これからも大切にしたいものを選び直す機会です。',S:'学びや気づきを言葉にして、今後の方向を少しずつ明確にしていきましょう。',N:'急いで結果を出すより、休息や準備に時間を使うことも大切です。',SW:'身近な暮らしや人間関係に目を向け、無理のない積み重ねを育てましょう。',E:'新しいことは小さく試し、勢いだけで進めず手応えを確かめましょう。',SE:'相手とのやり取りを丁寧にし、信頼を積み重ねることを意識しましょう。'
 };
+// 文章は九星の回座と数秘のサイクルを同じ重みで統合し、暦の時刻は管理欄のみ表示。
+const numerologyBridge={
+ 1:'新しい一歩は小さく試し、始めることを大切にしてください。',2:'周りの意見に耳を傾けつつ、自分の希望も丁寧に伝えましょう。',3:'会話や創作を楽しみ、気持ちを表現する時間を持ちましょう。',4:'毎日の仕組みを整え、無理のない継続を心がけましょう。',5:'変化に柔軟に向き合い、選択肢を広げてみましょう。',6:'身近な人との関係を大切にしながら、背負う役割を選びましょう。',7:'急いで答えを出さず、静かに考える時間を確保しましょう。',8:'積み重ねた努力を形にするため、現実的な優先順位を決めましょう。',9:'続けるものと終えるものを見極め、次に向けて整理しましょう。',11:'ひらめきを大切にしながら、気持ちを落ち着けて判断しましょう。',22:'大きな構想を身近な行動に落とし込み、一歩ずつ形にしましょう。'
+};
 function annualReading(d){
- const palace=palaceReadings[d.p],num=themes[d.year],star=starMonthly[d.star];
  const title=palaceAnnual[d.p];
- let body=`九星気学では、本命星の持ち味である「${star.lead}」という視点を生かしながら、${palaceAnnualAdvice[d.p]} 一方、数秘の年サイクル${d.year}は「${num.t}」。${num.a}`;
- if(d.year!==d.yearEnd){const [,bm,bd]=d.date.split('-').map(Number);body+=`${bm}月${bd}日から数秘の年サイクルは${d.yearEnd}へ移り、「${themes[d.yearEnd].t}」が加わります。`;}
- body+='九星の年盤は立春で切り替わるため、年初と立春以降では巡りが異なります。';
+ let body=`九星の巡りでは、${palaceAnnualAdvice[d.p]} ${numerologyBridge[d.year]} 本命星の持ち味を生かしつつ、焦らず自分のペースで進めていきましょう。`;
+ if(d.year!==d.yearEnd){const [,bm,bd]=d.date.split('-').map(Number);body+=`${bm}月${bd}日の誕生日からは、数秘の流れが変わります。`;}
  return {title,body};
 }
 function monthReading(m,d){
- const palace=palaceReadings[m.p],before=palaceReadings[m.pBefore],num=numMonthly[m.n],star=starMonthly[d.star];
+ const palace=palaceReadings[m.p],num=numMonthly[m.n];
  const title=palace.title;
- let body=`九星の月盤では「${palaceFocus[m.p]}」が焦点です。${palace.intro}${star.approach}、${palace.detail} 数秘の月サイクル${m.n}は「${num.head}」。${num.line}`;
- if(m.n!==m.endN){const bd=Number(d.date.slice(8));body+=`${m.m}月${bd}日から数秘は${m.endN}に変わり、「${numMonthly[m.endN].head}」の視点も加わります。`;}
- if(m.pBefore!==m.p){body+=`九星は${m.switchLabel}を境に「${palaceFocus[m.pBefore]}」から「${palaceFocus[m.p]}」へ。月初は${before.title}ことも意識してみましょう。`;}
- const action=palace.actions[(d.star+m.n)%palace.actions.length]+'／数秘の一歩：'+num.action;
+ const lead=palace.intro.replace(/。$/,'。');
+ let body=`${lead}${numerologyBridge[m.n]}${starSceneNotes[d.star][(m.m-1)%3]}`;
+ if(m.n!==m.endN){const bd=Number(d.date.slice(8));body+=`${m.m}月${bd}日の誕生日以降は、取り組み方を見直すとよいでしょう。`;}
+ if(m.pBefore!==m.p){body+=`節入りを境に九星の巡りが変わるため、月初とその後では過ごし方に少し変化をつけましょう。`;}
+ const action=`${palace.actions[(d.star+m.n)%palace.actions.length]}`;
  return {title,body,action};
 }
 function render(d){
@@ -370,8 +373,8 @@ function render(d){
   ctx.strokeStyle='#ded8d2';ctx.lineWidth=2;ctx.strokeRect(60,y,1120,250);
   fill(`${m.m}月`,84,y+51,36,'#775e4d',true);
   fitHeading(reading.title,214,y+51,930,29);
-  fitWrap(reading.body,86,y+92,1060,22,29,5);
-  fitWrap(`今月の一歩：${reading.action}`,86,y+224,1050,20,27,1,'#72806a',true);
+  fitWrap(reading.body,86,y+92,1060,23,32,4);
+  fitWrap(`今月の一歩：${reading.action}`,86,y+222,1050,20,27,1,'#72806a',true);
  });
  const closing=closingByStar[d.star];
  fill('みろくから最後にひと言',85,1365,26,'#8e685b',true);
