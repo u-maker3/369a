@@ -627,7 +627,7 @@ function annualReading(d){
  let body=annualBalanced[d.p]+' '+annualCycleBalanced[d.year];
  if(d.year!==d.yearEnd){
   const [,bm,bd]=d.date.split('-').map(Number);
-  body+=` ${bm}月${bd}日の誕生日からは「${annualCycleTitle[d.yearEnd]}」へ意識が移ります。${annualCycleBalanced[d.yearEnd]}`;
+  body+=` ${bm}月${bd}日の誕生日からは、${annualCycleBalanced[d.yearEnd]}`;
  }
  return {title,body};
 }
@@ -648,12 +648,17 @@ const monthContext={
  E:'気になっていたことを小さく試し、実際の手応えを確かめたい月です。',
  SE:'連絡や約束を丁寧にし、互いの希望を確認して信頼を育てたい月です。'
 };
-// 節入り前の宮を短く紹介し、主期間の鑑定文につなぐ。
-const beforePalaceLead={
- C:'月初は優先順位を見直し',NW:'月初は責任の範囲を確かめ',W:'月初は会話や楽しみを大切にし',
- NE:'月初は習慣の変えどきを考え',S:'月初は経験を振り返り',N:'月初は休息と準備を優先し',
- SW:'月初は暮らしの手順を整え',E:'月初は小さな一歩を試し',SE:'月初は連絡や約束を確認し'
+// 節入り前の宮を表す短い自然文。節入り後のテーマへ接続する。
+const beforePalacePhrase={
+ C:'優先順位を確かめる',NW:'引き受ける役割を整理する',W:'会話や楽しみを味わう',
+ NE:'習慣を見直す',S:'経験を振り返る',N:'休息と準備を大切にする',
+ SW:'暮らしの手順を整える',E:'小さな一歩を試す',SE:'連絡や約束を確認する'
 };
+const beforeTransitions=[
+ phrase=>`月初は${phrase}ところから始めましょう。`,
+ phrase=>`年明けは${phrase}時間も大切に。`,
+ phrase=>`月の始まりには${phrase}ことを意識してみてください。`
+];
 function monthReading(m,d){
  const p=monthPalaceText[m.p],num=m.n;
  const custom=monthScenes[m.p]?.[num];
@@ -668,12 +673,10 @@ function monthReading(m,d){
  }
  // 月初（節入り前）の宮を反映。主期間の助言を残しつつ長さを抑える。
  if(m.pBefore && m.pBefore!==m.p){
-  const lead=beforePalaceLead[m.pBefore];
-  if(custom){
-   body=`${lead}ましょう。節入り後は、${monthContext[m.p]} ${custom[0]} ${custom[1]}`;
-  }else{
-   body=`${lead}ましょう。節入り後は、${monthContext[m.p]} ${monthNuance[num]} ${p.caution}`;
-  }
+  const phrase=beforePalacePhrase[m.pBefore];
+  const intro=beforeTransitions[(m.m-1)%beforeTransitions.length](phrase);
+  const main=custom ? `${custom[0]} ${custom[1]}` : `${monthNuance[num]} ${p.caution}`;
+  body=`${intro} 節入り後は、${monthContext[m.p]} ${main}`;
  }
  // 誕生日が該当月にある場合のみ、切り替わりを補足。
  if(m.n!==m.endN){const bd=Number(d.date.slice(8));body+=` ${m.m}月${bd}日からは、取り組むテーマが「${annualCycleTitle[m.endN]}」へ移ります。`;}
@@ -696,7 +699,7 @@ function contextualClosing(d){
 function render(d){
  ctx.setTransform(2,0,0,2,0,0);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
  fill('みろく流  季節の運気だより',80,91,25,'#90715b',true);
- fitHeading(`${d.name}さんへのメッセージ`,80,145,1080,43);
+ fitHeading(`${d.name==='お客さま'?'お客さま':d.name+'さん'}へのメッセージ`,80,145,1080,43);
  fill(`${d.name} 様   ｜   1月・2月・3月号`,82,184,22,'#786d65');
  fill('2027年のテーマ',70,246,27,'#92735e',true);
  const yr=annualReading(d);
