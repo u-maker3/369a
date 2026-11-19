@@ -655,10 +655,22 @@ const beforePalacePhrase={
  SW:'暮らしの手順を整える',E:'小さな一歩を試す',SE:'連絡や約束を確認する'
 };
 const beforeTransitions=[
- phrase=>`月初は${phrase}ところから始めましょう。`,
- phrase=>`年明けは${phrase}時間も大切に。`,
- phrase=>`月の始まりには${phrase}ことを意識してみてください。`
+ phrase=>`小寒を迎えるまでは、${phrase}ことを心がけましょう。`,
+ phrase=>`立春までは、${phrase}時間を取りましょう。`,
+ phrase=>`啓蟄までは、${phrase}ことから始めましょう。`
 ];
+// 「今月の一歩」は、月の宮のテーマと対応する具体的な行動にする。
+const palaceActions={
+ C:'今週の予定から、負担を減らせる用事を一つ選ぶ',
+ NW:'引き受ける仕事を一つ選び、期限を決める',
+ W:'身近な人と楽しみたい予定を一つ話し合う',
+ NE:'続けたい習慣と変えたい習慣を一つずつ書く',
+ S:'最近の気づきを一つ、言葉にして伝える',
+ N:'今週の予定に休む時間を30分確保する',
+ SW:'毎日の作業を一つ選び、手順を見直す',
+ E:'気になっていることを一つ小さく試す',
+ SE:'大切な相手に連絡し、互いの希望を確かめる'
+};
 function monthReading(m,d){
  const p=monthPalaceText[m.p],num=m.n;
  const custom=monthScenes[m.p]?.[num];
@@ -669,12 +681,12 @@ function monthReading(m,d){
  }else{
   const example=monthExamples[m.p]?.[num]||cycleMonthlyApproach[num][1];
   body=monthContext[m.p]+' '+monthNuance[num]+' '+p.caution+' '+example;
-  action=monthExamples[m.p]?.[num]?cycleGoals[num].step:cycleMonthlyApproach[num][0];
+  action=palaceActions[m.p];
  }
  // 月初（節入り前）の宮を反映。主期間の助言を残しつつ長さを抑える。
  if(m.pBefore && m.pBefore!==m.p){
   const phrase=beforePalacePhrase[m.pBefore];
-  const intro=beforeTransitions[(m.m-1)%beforeTransitions.length](phrase);
+  const intro=beforeTransitions[m.m-1](phrase);
   const main=custom ? `${custom[0]} ${custom[1]}` : `${monthNuance[num]} ${p.caution}`;
   body=`${intro} 節入り後は、${monthContext[m.p]} ${main}`;
  }
