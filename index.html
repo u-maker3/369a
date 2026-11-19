@@ -648,6 +648,12 @@ const monthContext={
  E:'気になっていたことを小さく試し、実際の手応えを確かめたい月です。',
  SE:'連絡や約束を丁寧にし、互いの希望を確認して信頼を育てたい月です。'
 };
+// 節入り前の宮を短く紹介し、主期間の鑑定文につなぐ。
+const beforePalaceLead={
+ C:'月初は優先順位を見直し',NW:'月初は責任の範囲を確かめ',W:'月初は会話や楽しみを大切にし',
+ NE:'月初は習慣の変えどきを考え',S:'月初は経験を振り返り',N:'月初は休息と準備を優先し',
+ SW:'月初は暮らしの手順を整え',E:'月初は小さな一歩を試し',SE:'月初は連絡や約束を確認し'
+};
 function monthReading(m,d){
  const p=monthPalaceText[m.p],num=m.n;
  const custom=monthScenes[m.p]?.[num];
@@ -659,6 +665,15 @@ function monthReading(m,d){
   const example=monthExamples[m.p]?.[num]||cycleMonthlyApproach[num][1];
   body=monthContext[m.p]+' '+monthNuance[num]+' '+p.caution+' '+example;
   action=monthExamples[m.p]?.[num]?cycleGoals[num].step:cycleMonthlyApproach[num][0];
+ }
+ // 月初（節入り前）の宮を反映。主期間の助言を残しつつ長さを抑える。
+ if(m.pBefore && m.pBefore!==m.p){
+  const lead=beforePalaceLead[m.pBefore];
+  if(custom){
+   body=`${lead}ましょう。節入り後は、${monthContext[m.p]} ${custom[0]} ${custom[1]}`;
+  }else{
+   body=`${lead}ましょう。節入り後は、${monthContext[m.p]} ${monthNuance[num]} ${p.caution}`;
+  }
  }
  // 誕生日が該当月にある場合のみ、切り替わりを補足。
  if(m.n!==m.endN){const bd=Number(d.date.slice(8));body+=` ${m.m}月${bd}日からは、取り組むテーマが「${annualCycleTitle[m.endN]}」へ移ります。`;}
