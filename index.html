@@ -629,16 +629,38 @@ function annualReading(d){
  }
  return {title,body};
 }
+// 月運：回座の場面と月数秘の課題を一つの提案に統合し、行動は必ず本文と一致させる。
+const monthScenes={
+ C:{9:['手放す予定を一つ決める前に、続けている理由を確かめてみましょう。','終わらせるのは投げ出すことではなく、次に使う時間を取り戻すための選択です。','今月は、やめたい役割を一つ書き出し、必要なら関係する人に相談してみてください。','終える役割を一つ書き出す'],1:['自分の希望を後回しにしてきたなら、まず優先したいことを一つ決めましょう。','人に合わせる前に、何から始めるか自分で選ぶことが今月の鍵です。','今週中に最初の予定を入れ、ほかの用事との時間配分も見直してみてください。','始めたいことを一つ予定に入れる']},
+ NW:{1:['頼まれたことを全部引き受けるより、自分の意思で取り組む一件を選びましょう。','始めることに意味がある月ですが、責任の範囲を決めないまま走り出すと負担が増えます。','仕事や活動で一つ目標を決め、期限と最初の作業を具体的にしてみてください。','進めたい一件の期限と最初の作業を決める'],2:['誰かと協力するなら、最初に役割と期限を確かめることが大切です。','相手の期待を受け止めつつ、自分ができる範囲を言葉にしましょう。','引き受ける前に一度相談し、無理のない分担を決めてみてください。','役割と期限を一つ確認する']},
+ W:{2:['人と過ごす時間に、気持ちを分かち合う楽しさを見つけてみましょう。','協力は相手に合わせきることではありません。相手の希望を聞き、自分の希望も伝えることが大切です。','食事や趣味の予定を一つ話し合い、二人が楽しめる形を探してみてください。','相手の希望を聞き、自分の希望も一つ伝える'],9:['これまでのご縁に目を向け、うれしかった出来事を振り返ってみましょう。','続ける付き合いと一区切りつける付き合いを、無理に決めず丁寧に見極める時期です。','感謝を伝えたい人を一人選び、具体的な思い出とともに言葉にしてみてください。','感謝したい相手に一言伝える']}
+};
+const monthContext={
+ C:'予定・仕事・人間関係の優先順位を見直し、自分のための時間も確保したい月です。',
+ NW:'目標や頼まれごとに向き合い、責任をどこまで引き受けるか考えたい月です。',
+ W:'会話や好きなことから手応えを受け取り、楽しみを日常に戻したい月です。',
+ NE:'習慣の変えどきを見極め、続けるものと変えるものを選びたい月です。',
+ S:'学びや経験を振り返り、自分の考えを分かりやすく伝えたい月です。',
+ N:'結果を急がず、休息と準備に必要な時間を確保したい月です。',
+ SW:'暮らしや作業の手順を見直し、無理なく続く形を探したい月です。',
+ E:'気になっていたことを小さく試し、実際の手応えを確かめたい月です。',
+ SE:'連絡や約束を丁寧にし、互いの希望を確認して信頼を育てたい月です。'
+};
 function monthReading(m,d){
  const p=monthPalaceText[m.p],num=m.n;
- const example=monthExamples[m.p]?.[num]||cycleMonthlyApproach[num][1];
- // 「場面→個人の取り組み→本命星の注意点→具体例」。宮と数秘の交点を優先。
- let body=p.opening+' '+monthNuance[num]+' '+starCautions[d.star]+' '+example;
- // 同じ本命星の注意書きを3か月とも繰り返さず、必要な月だけ表示。
- if(m.m!==2)body=p.opening+' '+monthNuance[num]+' '+example;
- if(m.n!==m.endN){const bd=Number(d.date.slice(8));body+=` ${m.m}月${bd}日の誕生日からは、取り組む課題も変わります。`;}
- const action=example.replace(/ください。$|ましょう。$|みて。$/,'').replace(/てみて$/,'る');
- return {title:p.title,body,action:monthExamples[m.p]?.[num]?cycleGoals[num].step:cycleMonthlyApproach[num][0]};
+ const custom=monthScenes[m.p]?.[num];
+ let body,action;
+ if(custom){
+  body=monthContext[m.p]+' '+custom[0]+' '+custom[1]+' '+custom[2];
+  action=custom[3];
+ }else{
+  const example=monthExamples[m.p]?.[num]||cycleMonthlyApproach[num][1];
+  body=monthContext[m.p]+' '+monthNuance[num]+' '+p.caution+' '+example;
+  action=monthExamples[m.p]?.[num]?cycleGoals[num].step:cycleMonthlyApproach[num][0];
+ }
+ // 誕生日が該当月にある場合のみ、切り替わりを補足。
+ if(m.n!==m.endN){const bd=Number(d.date.slice(8));body+=` ${m.m}月${bd}日からは、取り組むテーマが「${annualCycleTitle[m.endN]}」へ移ります。`;}
+ return {title:p.title,body,action};
 }
 function contextualClosing(d){
  const p=d.p,n=d.year;
@@ -663,7 +685,7 @@ function render(d){
   ctx.strokeStyle='#ded8d2';ctx.lineWidth=2;ctx.strokeRect(60,y,1120,250);
   fill(`${m.m}月`,84,y+51,36,'#775e4d',true);
   fitHeading(reading.title,214,y+51,930,29);
-  fitWrap(reading.body,86,y+91,1060,20,27,5);
+  fitWrap(reading.body,86,y+91,1060,20,27,4);
   fitWrap(`今月の一歩：${reading.action}`,86,y+222,1050,20,27,1,'#72806a',true);
  });
  const closing=contextualClosing(d);
